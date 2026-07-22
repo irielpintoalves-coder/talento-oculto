@@ -1,16 +1,24 @@
 import Providers from '@/components/Providers';
 import './globals.css';
 
-export const metadata = {
+
+export const metadata: Metadata = {
   title: 'Talento Oculto — Mapeamento Inteligente de Carreira',
   description: 'Descubra suas competências invisíveis e transforme sua trajetória profissional.',
 };
 
-export default function RootLayout({ children }) {
+import type { Metadata } from 'next';
+
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="pt-BR" className="dark">
-      <body className="bg-slate-950 text-slate-100 antialiased selection:bg-indigo-500 selection:text-white">
-        <Providers>{children}</Providers>
+      <body className="bg-slate-950 text-slate-100 antialiased selection:bg-indigo-500">
+        {children}
       </body>
     </html>
   );
