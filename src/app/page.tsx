@@ -23,15 +23,15 @@ export default function LandingPage() {
 
       {}
       <header className="max-w-7xl w-full mx-auto px-6 py-6 flex items-center justify-between border-b border-slate-800/80 relative z-10 backdrop-blur-md bg-slate-950/40">
-        <div className="flex items-center space-x-3 group cursor-pointer">
-          <div className="relative flex items-center justify-center">
-            <div className="h-4 w-4 bg-indigo-500 rounded-full animate-pulse"></div>
-            <div className="absolute h-6 w-6 bg-indigo-500/30 rounded-full animate-ping"></div>
-          </div>
-          <span className="font-extrabold text-xl text-white tracking-tight group-hover:text-indigo-400 transition">
-            Talento <span className="text-indigo-400">Oculto</span>
-          </span>
-        </div>
+<div className="flex items-center space-x-3 group cursor-pointer animate-pulse">
+  <div className="relative flex items-center justify-center">
+    <div className="h-4 w-4 bg-indigo-500 rounded-full"></div>
+    <div className="absolute h-6 w-6 bg-indigo-500/30 rounded-full"></div>
+  </div>
+  <span className="font-extrabold text-xl text-white tracking-tight group-hover:text-indigo-400 transition">
+    Talento <span className="text-indigo-400">Oculto</span>
+  </span>
+</div>
 
         <div className="flex items-center gap-3">
           <span className="hidden sm:inline-flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-slate-300">
