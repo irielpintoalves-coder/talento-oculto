@@ -10,6 +10,13 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  
+  /* Cores personalizadas integradas ao Tailwind v4 */
+  --color-slate-950: #020617;
+  --color-indigo-500: #6366f1;
+  --color-indigo-600: #4f46e5;
+  --color-indigo-900: #312e81;
+  --color-indigo-950: #1e1b4b;
 }
 
 @media (prefers-color-scheme: dark) {
