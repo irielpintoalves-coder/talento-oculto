@@ -6,8 +6,9 @@ export const metadata: Metadata = {
   title: 'Talento Oculto - Mapeamento de Competências',
   description: 'Descubra suas competências ocultas. Um entrevistador IA mapeia suas ferramentas, habilidades e experiências para gerar currículos de alto impacto.',
   icons: {
-    icon: '/favicon.ico',
-  },
+	  icon: '/favicon.png',  // ✅ NOVO
+	  apple: '/favicon.png',
+	}
   keywords: 'talentos ocultos, currículo IA, mapeamento de competências, dossiê profissional',
   authors: [{ name: 'Talento Oculto' }],
   openGraph: {
