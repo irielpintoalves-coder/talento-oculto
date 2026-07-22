@@ -77,7 +77,7 @@ export default function LandingPage() {
               <path fill="#FBBC05" d="M5.28 14.25c-.25-.72-.38-1.49-.38-2.25s.13-1.53.38-2.25V6.6H1.19C.43 8.14 0 9.99 0 12s.43 3.86 1.19 5.4l4.09-3.15z" />
               <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.23 0 3.17 2.68 1.19 6.6l4.09 3.15c.95-2.84 3.6-4.95 6.72-4.95z" />
             </svg>
-            <span>Iniciar Mapeamento com Google</span>
+            <span>Começar Mapeamento</span>
           </button>
           <p className="text-xs text-slate-400 font-medium flex items-center gap-1.5">
             🔒 Acesso restrito via whitelist autorizada no banco de dados.
