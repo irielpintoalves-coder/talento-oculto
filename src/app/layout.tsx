@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   icons: {
 	  icon: '/favicon.png',  // ✅ NOVO
 	  apple: '/favicon.png',
-	}
+	},
   keywords: 'talentos ocultos, currículo IA, mapeamento de competências, dossiê profissional',
   authors: [{ name: 'Talento Oculto' }],
   openGraph: {
