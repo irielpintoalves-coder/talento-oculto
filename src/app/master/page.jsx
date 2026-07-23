@@ -7,180 +7,160 @@ import Link from 'next/link';
 
 export default function MasterDashboard() {
   const router = useRouter();
-  const [user, setUser] = useState(null);
   const [profiles, setProfiles] = useState([]);
   const [organizations, setOrganizations] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [newEmail, setNewEmail] = useState('');
-  const [newRole, setNewRole] = useState('user');
-  const [msg, setMsg] = useState('');
+
+  // Form Organização
+  const [orgName, setOrgName] = useState('');
+  const [adminEmail, setAdminEmail] = useState('');
+  const [totalLicenses, setTotalLicenses] = useState(5);
+  const [msgOrg, setMsgOrg] = useState('');
 
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   );
 
-  useEffect(() => {
-    const loadData = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        router.push('/login');
-        return;
-      }
-      setUser(user);
+  const loadData = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { router.push('/login'); return; }
 
-      // Valida se é Master
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .ilike('email', user.email)
-        .maybeSingle();
-
-      if (profile?.role !== 'master') {
-        alert('Acesso negado. Apenas usuários Master podem acessar esta página.');
-        router.push('/interview');
-        return;
-      }
-
-      // Busca todos os perfis cadastrados
-      const { data: profilesData } = await supabase
-        .from('profiles')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      setProfiles(profilesData || []);
-
-      // Busca organizações
-      const { data: orgsData } = await supabase
-        .from('organizations')
-        .select('*');
-
-      setOrganizations(orgsData || []);
-      setLoading(false);
-    };
-
-    loadData();
-  }, [supabase, router]);
-
-  const handleAddOrUpdateProfile = async (e) => {
-    e.preventDefault();
-    if (!newEmail.trim()) return;
-
-    setMsg('Salvando...');
-    const { error } = await supabase
+    const { data: profile } = await supabase
       .from('profiles')
-      .upsert({ email: newEmail.trim().toLowerCase(), role: newRole }, { onConflict: 'email' });
+      .select('role')
+      .ilike('email', user.email)
+      .maybeSingle();
 
-    if (error) {
-      setMsg(`Erro: ${error.message}`);
-    } else {
-      setMsg('Perfil atualizado com sucesso!');
-      setNewEmail('');
-      // Recarrega lista
-      const { data: profilesData } = await supabase.from('profiles').select('*');
-      setProfiles(profilesData || []);
+    if (profile?.role !== 'master') {
+      router.push('/interview');
+      return;
     }
+
+    const { data: profilesData } = await supabase.from('profiles').select('*').order('created_at', { ascending: false });
+    const { data: orgsData } = await supabase.from('organizations').select('*').order('created_at', { ascending: false });
+
+    setProfiles(profilesData || []);
+    setOrganizations(orgsData || []);
+    setLoading(false);
+  };
+
+  useEffect(() => { loadData(); }, []);
+
+  const handleSaveOrganization = async (e) => {
+    e.preventDefault();
+    setMsgOrg('Salvando organização...');
+
+    const emailClean = adminEmail.trim().toLowerCase();
+
+    // 1. Salva/Atualiza Organização
+    const { data: org, error: orgErr } = await supabase
+      .from('organizations')
+      .upsert({ 
+        name: orgName, 
+        admin_email: emailClean, 
+        total_licenses: Number(totalLicenses) 
+      }, { onConflict: 'admin_email' })
+      .select()
+      .single();
+
+    if (orgErr) {
+      setMsgOrg(`Erro: ${orgErr.message}`);
+      return;
+    }
+
+    // 2. Garante que o perfil do Admin existe com role 'admin' e ligado à organização
+    await supabase.from('profiles').upsert({
+      email: emailClean,
+      role: 'admin',
+      organization_id: org.id
+    }, { onConflict: 'email' });
+
+    setMsgOrg('Organização e Admin atualizados com sucesso!');
+    setOrgName('');
+    setAdminEmail('');
+    setTotalLicenses(5);
+    loadData();
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0f0f0f] text-[#daa520]">
-        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-[#daa520]"></div>
-      </div>
-    );
+    return <div className="min-h-screen bg-[#0f0f0f] flex items-center justify-center text-[#daa520]">Carregando...</div>;
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0f0f0f] text-[#e8dcc8]">
-      {/* Header */}
-      <header className="px-6 py-4 flex items-center justify-between border-b" style={{ background: '#1a1a1a', borderColor: '#2d5f4f' }}>
-        <div className="flex items-center gap-3">
-          <Link href="/" className="flex items-center gap-2">
-            <img src="/favicon.png" alt="Talento Oculto" className="w-8 h-8" />
-            <span className="font-bold text-sm text-[#daa520]">Painel Master — Controle de Acessos</span>
-          </Link>
-        </div>
-        <div className="flex items-center gap-3 text-xs">
-          <Link href="/interview" className="px-3 py-1.5 rounded-lg bg-[#2d5f4f] text-white font-semibold">
-            Ir para Entrevista
-          </Link>
-          <button
-            onClick={async () => { await supabase.auth.signOut(); router.push('/'); }}
-            className="px-3 py-1.5 rounded-lg bg-red-950/40 text-red-400 border border-red-900"
-          >
-            Sair
-          </button>
-        </div>
+    <div className="min-h-screen bg-[#0f0f0f] text-[#e8dcc8] p-6 space-y-8">
+      <header className="flex justify-between items-center border-b border-[#2d5f4f] pb-4">
+        <h1 className="text-xl font-bold text-[#daa520]">Painel Master — Controle de Cotas e Licenças</h1>
+        <Link href="/login" className="px-4 py-2 bg-[#2d5f4f] rounded-xl text-xs font-bold text-white">Voltar</Link>
       </header>
 
-      {/* Conteúdo */}
-      <main className="max-w-5xl w-full mx-auto p-6 space-y-8 flex-1">
-        <div className="p-6 rounded-2xl shadow-xl space-y-4" style={{ background: '#1a1a1a', border: '1px solid #2d5f4f' }}>
-          <h2 className="text-lg font-bold text-[#daa520]">➕ Adicionar ou Alterar Nível de Acesso (Perfil)</h2>
-          <form onSubmit={handleAddOrUpdateProfile} className="flex flex-col sm:flex-row gap-3">
-            <input
-              type="email"
-              placeholder="E-mail do usuário..."
-              value={newEmail}
-              onChange={(e) => setNewEmail(e.target.value)}
-              className="flex-1 px-4 py-2.5 rounded-xl text-sm bg-[#0f0f0f] border border-[#2d5f4f] text-[#e8dcc8]"
-              required
-            />
-            <select
-              value={newRole}
-              onChange={(e) => setNewRole(e.target.value)}
-              className="px-4 py-2.5 rounded-xl text-sm bg-[#0f0f0f] border border-[#2d5f4f] text-[#daa520] font-semibold"
-            >
-              <option value="master">Master (Super Admin)</option>
-              <option value="admin">Admin (Organização)</option>
-              <option value="user">User (Membro Comum)</option>
-            </select>
-            <button
-              type="submit"
-              className="px-6 py-2.5 rounded-xl font-bold text-sm text-[#0f0f0f]"
-              style={{ background: '#d4844f' }}
-            >
-              Salvar Perfil
-            </button>
-          </form>
-          {msg && <p className="text-xs text-green-400 mt-2">{msg}</p>}
-        </div>
+      {/* Cadastro de Organização & Cotas */}
+      <section className="bg-[#1a1a1a] p-6 rounded-2xl border border-[#2d5f4f] space-y-4">
+        <h2 className="text-md font-bold text-[#daa520]">🏢 Cadastrar / Editar Licença de Organização</h2>
+        <form onSubmit={handleSaveOrganization} className="grid grid-cols-1 md:grid-cols-4 gap-3">
+          <input
+            type="text"
+            placeholder="Nome da Organização/Empresa"
+            value={orgName}
+            onChange={(e) => setOrgName(e.target.value)}
+            className="px-4 py-2.5 rounded-xl bg-[#0f0f0f] border border-[#2d5f4f] text-xs text-[#e8dcc8]"
+            required
+          />
+          <input
+            type="email"
+            placeholder="E-mail do Admin Responsável"
+            value={adminEmail}
+            onChange={(e) => setAdminEmail(e.target.value)}
+            className="px-4 py-2.5 rounded-xl bg-[#0f0f0f] border border-[#2d5f4f] text-xs text-[#e8dcc8]"
+            required
+          />
+          <input
+            type="number"
+            placeholder="Qtd de Licenças"
+            min="1"
+            value={totalLicenses}
+            onChange={(e) => setTotalLicenses(e.target.value)}
+            className="px-4 py-2.5 rounded-xl bg-[#0f0f0f] border border-[#2d5f4f] text-xs text-[#daa520] font-bold"
+            required
+          />
+          <button type="submit" className="bg-[#d4844f] text-[#0f0f0f] font-bold py-2.5 px-4 rounded-xl text-xs">
+            Salvar Cota
+          </button>
+        </form>
+        {msgOrg && <p className="text-xs text-green-400">{msgOrg}</p>}
+      </section>
 
-        {/* Tabela de Perfis Cadastrados */}
-        <div className="p-6 rounded-2xl shadow-xl space-y-4" style={{ background: '#1a1a1a', border: '1px solid #2d5f4f' }}>
-          <h2 className="text-lg font-bold text-[#daa520]">📋 Usuários com Perfis Especiais Cadastrados</h2>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs border-collapse">
-              <thead>
-                <tr className="border-b border-[#2d5f4f] text-gray-400">
-                  <th className="py-3 px-4">E-MAIL</th>
-                  <th className="py-3 px-4">FUNÇÃO (ROLE)</th>
-                  <th className="py-3 px-4">ID VINCULADO</th>
-                  <th className="py-3 px-4">CRIADO EM</th>
-                </tr>
-              </thead>
-              <tbody>
-                {profiles.map((p) => (
-                  <tr key={p.email} className="border-b border-[#2d5f4f]/40 hover:bg-[#252525]">
-                    <td className="py-3 px-4 font-mono text-[#e8dcc8]">{p.email}</td>
+      {/* Lista de Organizações e Uso */}
+      <section className="bg-[#1a1a1a] p-6 rounded-2xl border border-[#2d5f4f] space-y-4">
+        <h2 className="text-md font-bold text-[#daa520]">📊 Organizações Ativas e Cotas</h2>
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs text-left border-collapse">
+            <thead>
+              <tr className="border-b border-[#2d5f4f] text-gray-400">
+                <th className="py-2.5 px-4">ORGANIZAÇÃO</th>
+                <th className="py-2.5 px-4">ADMIN RESPONSÁVEL</th>
+                <th className="py-2.5 px-4">USO DE LICENÇAS</th>
+              </tr>
+            </thead>
+            <tbody>
+              {organizations.map((o) => {
+                const used = profiles.filter(p => p.organization_id === o.id).length;
+                return (
+                  <tr key={o.id} className="border-b border-[#2d5f4f]/40">
+                    <td className="py-3 px-4 font-bold text-[#e8dcc8]">{o.name}</td>
+                    <td className="py-3 px-4 font-mono text-gray-300">{o.admin_email}</td>
                     <td className="py-3 px-4">
-                      <span className={`px-2.5 py-1 rounded-full font-bold uppercase text-[10px] ${
-                        p.role === 'master' ? 'bg-purple-950 text-purple-300 border border-purple-800' :
-                        p.role === 'admin' ? 'bg-blue-950 text-blue-300 border border-blue-800' :
-                        'bg-gray-800 text-gray-300'
-                      }`}>
-                        {p.role}
+                      <span className={`px-3 py-1 rounded-full font-bold ${used >= o.total_licenses ? 'bg-red-950 text-red-300 border border-red-800' : 'bg-[#2d5f4f] text-[#daa520]'}`}>
+                        {used} de {o.total_licenses} em uso
                       </span>
                     </td>
-                    <td className="py-3 px-4 font-mono text-gray-500">{p.id || 'Pendente de Primeiro Login'}</td>
-                    <td className="py-3 px-4 text-gray-400">{new Date(p.created_at).toLocaleDateString()}</td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
-      </main>
+      </section>
     </div>
   );
 }

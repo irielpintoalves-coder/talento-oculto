@@ -8,7 +8,7 @@ export async function GET(request) {
   const next = searchParams.get('next') ?? '/interview';
 
   if (!code) {
-    return NextResponse.redirect(`${origin}/?error=no_code`);
+    return NextResponse.redirect(`${origin}/login?error=no_code`);
   }
 
   try {
@@ -77,13 +77,11 @@ export async function GET(request) {
     // -------------------------------------------------------------
     // SEM PERMISSÃO DE ACESSO
     // -------------------------------------------------------------
-    console.warn(`[Acesso Negado] O e-mail ${user.email} não possui licença ativa ou perfil Master/Admin.`);
-    
-    // Desloga o usuário
-    await supabase.auth.signOut();
-    
-    return NextResponse.redirect(`${origin}/?error=unauthorized`);
+    // Quando o e-mail não tem perfil cadastrado:
+console.warn(`[Acesso Negado] O e-mail ${user.email} não possui autorização prévia.`);
+await supabase.auth.signOut();
 
+return NextResponse.redirect(`${origin}/login?error=unauthorized`);
   } catch (err) {
     console.error('Erro crítico no callback:', err);
     return NextResponse.redirect(`${origin}/?error=server_error`);

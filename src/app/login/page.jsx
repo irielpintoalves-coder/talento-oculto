@@ -1,12 +1,15 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { createBrowserClient } from '@supabase/ssr';
 import Link from 'next/link';
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const errorMessage = searchParams.get('error');
+
   const [user, setUser] = useState(null);
   const [role, setRole] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -22,19 +25,14 @@ export default function LoginPage() {
       
       if (user) {
         setUser(user);
-        
-        // Busca o nível de acesso (role) do usuário no banco
         const { data: profile } = await supabase
           .from('profiles')
           .select('role')
           .ilike('email', user.email)
           .maybeSingle();
 
-        if (profile) {
-          setRole(profile.role);
-        }
+        if (profile) setRole(profile.role);
       }
-      
       setLoading(false);
     };
 
@@ -67,19 +65,26 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-[#0f0f0f] text-[#e8dcc8] relative overflow-hidden">
-      {/* Botão de retorno / Logo */}
       <div className="absolute top-6 left-6">
         <Link href="/" className="flex items-center gap-2">
           <img src="/favicon.png" alt="Talento Oculto" className="w-8 h-8" />
-          <span className="font-extrabold text-sm" style={{ color: '#daa520' }}>
-            Talento <span style={{ color: '#d4844f' }}>Oculto</span>
+          <span className="font-extrabold text-sm text-[#daa520]">
+            Talento <span className="text-[#d4844f]">Oculto</span>
           </span>
         </Link>
       </div>
 
-      <div className="max-w-md w-full rounded-2xl p-8 space-y-6 shadow-2xl" style={{ background: '#1a1a1a', border: '1px solid #2d5f4f' }}>
+      <div className="max-w-md w-full rounded-2xl p-8 space-y-6 shadow-2xl bg-[#1a1a1a] border border-[#2d5f4f]">
+        
+        {/* ALERTA DE ACESSO NEGADO */}
+        {errorMessage === 'unauthorized' && !user && (
+          <div className="p-4 rounded-xl bg-red-950/60 border border-red-800 text-red-200 text-xs space-y-1">
+            <p className="font-bold text-red-400 text-sm">⛔ Acesso Não Autorizado</p>
+            <p>Seu e-mail do Google não possui uma licença ativa ou cadastro prévio no sistema.</p>
+          </div>
+        )}
+
         {user ? (
-          /* ESTADO 1: USUÁRIO JÁ AUTENTICADO */
           <div className="space-y-6 text-center">
             <div className="inline-flex p-3 rounded-full bg-[#2d5f4f]/30 border border-[#3a7d66]">
               <span className="text-2xl">👤</span>
@@ -95,54 +100,53 @@ export default function LoginPage() {
                 </span>
               )}
             </div>
-			{role === 'master' && (
-  <button
-    onClick={() => router.push('/master')}
-    className="w-full py-3 px-4 rounded-xl font-semibold text-sm transition text-[#0f0f0f] shadow-lg"
-    style={{ background: '#daa520' }}
-  >
-    ⚙️ Abrir Painel Master (Gerenciar Licenças)
-  </button>
-)}
 
             <div className="space-y-3 pt-2">
+              {role === 'master' && (
+                <button
+                  onClick={() => router.push('/master')}
+                  className="w-full py-3 px-4 rounded-xl font-semibold text-sm text-[#0f0f0f] shadow-lg bg-[#daa520] hover:bg-[#c3941c] transition"
+                >
+                  ⚙️ Painel Master (Gerenciar Licenças)
+                </button>
+              )}
+
+              {role === 'admin' && (
+                <button
+                  onClick={() => router.push('/admin')}
+                  className="w-full py-3 px-4 rounded-xl font-semibold text-sm text-white shadow-lg bg-[#2d5f4f] hover:bg-[#234b3e] transition"
+                >
+                  👥 Painel do Admin (Gerenciar Equipe)
+                </button>
+              )}
+
               <button
                 onClick={() => router.push('/interview')}
-                className="w-full py-3 px-4 rounded-xl font-semibold text-sm transition text-white shadow-lg"
-                style={{ background: '#2d5f4f' }}
+                className="w-full py-3 px-4 rounded-xl font-semibold text-sm transition text-white bg-[#2d5f4f]/60 hover:bg-[#2d5f4f]"
               >
                 🚀 Ir para a Entrevista
               </button>
 
               <button
-                onClick={() => router.push('/')}
-                className="w-full py-3 px-4 rounded-xl font-semibold text-sm transition text-[#daa520] border border-[#2d5f4f] hover:bg-[#252525]"
-              >
-                🏠 Página Inicial
-              </button>
-
-              <button
                 onClick={handleLogout}
-                className="w-full py-3 px-4 rounded-xl font-semibold text-sm transition text-red-400 border border-red-900 bg-red-950/40 hover:bg-red-900/60"
+                className="w-full py-3 px-4 rounded-xl font-semibold text-sm text-red-400 border border-red-900 bg-red-950/40 hover:bg-red-900/60 transition"
               >
-                Encerrar Sessão (Logout)
+                Encerrar Sessão
               </button>
             </div>
           </div>
         ) : (
-          /* ESTADO 2: USUÁRIO NÃO LOGADO */
           <div className="space-y-6 text-center">
             <div className="space-y-2">
               <h1 className="text-2xl font-bold text-[#daa520]">Acesso ao Sistema</h1>
               <p className="text-xs text-gray-400">
-                Entre com sua conta do Google autorizada para validar sua licença ou perfil de acesso.
+                Entre com sua conta autorizada do Google.
               </p>
             </div>
 
             <button
               onClick={handleGoogleLogin}
-              className="w-full flex items-center justify-center gap-3 font-bold px-6 py-3.5 rounded-xl transition-all shadow-xl text-sm"
-              style={{ background: '#d4844f', color: '#0f0f0f', border: '1px solid #daa520' }}
+              className="w-full flex items-center justify-center gap-3 font-bold px-6 py-3.5 rounded-xl text-sm transition-all shadow-xl bg-[#d4844f] text-[#0f0f0f] border border-[#daa520] hover:brightness-110"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z" />
@@ -152,15 +156,17 @@ export default function LoginPage() {
               </svg>
               <span>Entrar com o Google</span>
             </button>
-
-            <div className="pt-2 text-left bg-[#0f0f0f] p-4 rounded-xl border border-[#2d5f4f] text-[11px] text-gray-400 space-y-1">
-              <p className="font-semibold text-[#e8dcc8]">💡 Regras de Acesso:</p>
-              <p>• Usuários com função <strong>Master</strong> ou <strong>Admin</strong> cadastrada.</p>
-              <p>• E-mails autorizados em uma Organização ativa.</p>
-            </div>
           </div>
         )}
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#0f0f0f]"></div>}>
+      <LoginContent />
+    </Suspense>
   );
 }
