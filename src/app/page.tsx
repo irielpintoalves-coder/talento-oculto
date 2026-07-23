@@ -17,63 +17,68 @@ export default function LandingPage() {
   }, [status, router]);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between selection:bg-indigo-500 selection:text-white relative overflow-hidden">
-      {}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-indigo-600/15 blur-[140px] rounded-full pointer-events-none animate-glow"></div>
-      <div className="absolute top-[400px] right-0 w-[500px] h-[400px] bg-emerald-500/10 blur-[120px] rounded-full pointer-events-none"></div>
+	  <div className="min-h-screen flex flex-col justify-between relative overflow-hidden" style={{ background: '#0f0f0f', color: '#e8dcc8' }}>
+      {/* Gradientes de fundo com cores da logo */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] blur-[140px] rounded-full pointer-events-none opacity-30" style={{ background: 'radial-gradient(circle, rgba(218,165,32,0.3) 0%, transparent 70%)' }}></div>
+      <div className="absolute top-[400px] right-0 w-[500px] h-[400px] blur-[120px] rounded-full pointer-events-none opacity-20" style={{ background: 'radial-gradient(circle, rgba(212,132,79,0.3) 0%, transparent 70%)' }}></div>
 
-      {}
-      <header className="max-w-7xl w-full mx-auto px-6 py-6 flex items-center justify-between border-b border-slate-800/80 relative z-10 backdrop-blur-md bg-slate-950/40">
-		<div className="flex items-center space-x-3 group cursor-pointer logo-pulse">
-<div className="relative flex items-center justify-center">
-  <img 
-    src="/favicon.png" 
-    alt="Talento Oculto" 
-    className="w-10 h-10 logo-scale-pulse"
-  />
-</div>
-		  <span className="font-extrabold text-xl text-white tracking-tight group-hover:text-indigo-400 transition">
-			Talento <span className="text-indigo-400">Oculto</span>
-		  </span>
-		</div>
+      {/* Header */}
+      <header className="max-w-7xl w-full mx-auto px-6 py-6 flex items-center justify-between border-b relative z-10 backdrop-blur-md" style={{ borderColor: '#2d5f4f', background: 'rgba(15,15,15,0.8)' }}>
+        {/* Logo */}
+        <div className="flex items-center space-x-3 group cursor-pointer logo-pulse">
+          <div className="relative flex items-center justify-center">
+            <img 
+              src="/favicon.png" 
+              alt="Talento Oculto" 
+              className="w-16 h-16 logo-scale-pulse"
+            />
+          </div>
+          <span className="font-extrabold text-xl tracking-tight" style={{ color: '#daa520' }}>
+            Talento <span style={{ color: '#d4844f' }}>Oculto</span>
+          </span>
+        </div>
 
         <div className="flex items-center gap-3">
-          <span className="hidden sm:inline-flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-slate-300">
-            <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span> Sistema Ativo
+          <span className="hidden sm:inline-flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full" style={{ background: '#1a1a1a', border: '1px solid #2d5f4f', color: '#daa520' }}>
+            <span className="h-2 w-2 rounded-full animate-pulse" style={{ background: '#d4844f' }}></span> Sistema Ativo
           </span>
           <button
             onClick={() => signIn('google', { callbackUrl: '/interview' })}
-            className="text-xs bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-4 py-2 rounded-xl transition shadow-lg shadow-indigo-600/20"
+            className="text-xs font-semibold px-4 py-2 rounded-xl transition shadow-lg text-white"
+            style={{ background: '#d4844f' }}
           >
             Acessar
           </button>
         </div>
       </header>
 
-      {}
+      {/* Main Content */}
       <main className="max-w-6xl mx-auto px-6 py-12 md:py-20 text-center flex-1 flex flex-col justify-center items-center relative z-10 space-y-12">
         {/* Badge e Título */}
         <div className="space-y-6 max-w-4xl">
-          <div className="inline-flex items-center gap-2 bg-slate-900/90 border border-indigo-500/30 text-indigo-300 px-4 py-2 rounded-full text-xs font-semibold tracking-wide shadow-inner glow-indigo">
-            <span className="text-sm">✨</span> <span suppressHydrationWarning>
-  {" Powered by Gemini Flash AI & Motor Multi-Provedor"}
-</span>
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold tracking-wide shadow-inner" style={{ background: '#1a1a1a', border: '1px solid #2d5f4f', color: '#daa520' }}>
+            <span className="text-sm">✨</span> 
+            <span suppressHydrationWarning>
+              {" Powered by Gemini Flash AI & Motor Multi-Provedor"}
+            </span>
           </div>
 
-          <h1 className="text-4xl md:text-6xl font-extrabold text-white tracking-tight leading-[1.15]">
-            Sua bagagem profissional vai muito além do seu <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-sky-300 to-emerald-400">último cargo.</span>
+          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight leading-[1.15]" style={{ color: '#e8dcc8' }}>
+            Sua bagagem profissional vai muito além do seu 
+            <span style={{ color: '#daa520' }}> último cargo.</span>
           </h1>
 
-          <p className="text-base md:text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed font-normal">
-            Através de um diálogo humano conduzido por inteligência artificial, mapeamos suas ferramentas manuseadas, marcas conhecidas e problemas resolvidos para gerar <strong className="text-white">dossiês estratégicos e currículos de alto impacto</strong>.
+          <p className="text-base md:text-xl max-w-3xl mx-auto leading-relaxed font-normal" style={{ color: '#b8b8b8' }}>
+            Através de um diálogo humano conduzido por inteligência artificial, mapeamos suas ferramentas manuseadas, marcas conhecidas e problemas resolvidos para gerar <strong style={{ color: '#e8dcc8' }}>dossiês estratégicos e currículos de alto impacto</strong>.
           </p>
         </div>
 
-        {}
+        {/* CTA Button */}
         <div className="pt-2 w-full flex flex-col items-center gap-4 max-w-md">
           <button
             onClick={() => signIn('google', { callbackUrl: '/interview' })}
-            className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-white via-slate-100 to-slate-200 hover:from-slate-100 hover:to-white text-slate-950 font-bold px-8 py-4 rounded-2xl transition-all duration-200 shadow-2xl hover:shadow-indigo-500/20 text-base md:text-lg group border border-white/40 transform hover:-translate-y-0.5"
+            className="w-full flex items-center justify-center gap-3 font-bold px-8 py-4 rounded-2xl transition-all duration-200 shadow-2xl text-base md:text-lg group border transform hover:-translate-y-0.5"
+            style={{ background: '#d4844f', color: '#0f0f0f', borderColor: '#daa520' }}
           >
             <svg className="w-5 h-5 transition-transform group-hover:scale-110" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z" />
@@ -83,31 +88,33 @@ export default function LandingPage() {
             </svg>
             <span>Começar Mapeamento</span>
           </button>
-          <p className="text-xs text-slate-400 font-medium flex items-center gap-1.5">
+          <p className="text-xs font-medium flex items-center gap-1.5" style={{ color: '#888' }}>
             🔒 Acesso restrito via whitelist autorizada no banco de dados.
           </p>
         </div>
 
-        {}
+        {/* Tabs */}
         <div className="w-full pt-8">
-          <div className="flex justify-center gap-2 mb-6 border-b border-slate-800 pb-4">
+          <div className="flex justify-center gap-2 mb-6 pb-4" style={{ borderBottom: '1px solid #2d5f4f' }}>
             <button
               onClick={() => setActiveTab('features')}
-              className={`px-4 py-2 rounded-xl text-xs font-semibold transition ${
-                activeTab === 'features'
-                  ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30'
-                  : 'text-slate-400 hover:text-white bg-slate-900/60'
-              }`}
+              className={`px-4 py-2 rounded-xl text-xs font-semibold transition`}
+              style={{
+                background: activeTab === 'features' ? '#d4844f' : '#1a1a1a',
+                color: activeTab === 'features' ? '#0f0f0f' : '#daa520',
+                border: `1px solid ${activeTab === 'features' ? '#daa520' : '#2d5f4f'}`,
+              }}
             >
               🚀 Funcionalidades Chave
             </button>
             <button
               onClick={() => setActiveTab('preview')}
-              className={`px-4 py-2 rounded-xl text-xs font-semibold transition ${
-                activeTab === 'preview'
-                  ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30'
-                  : 'text-slate-400 hover:text-white bg-slate-900/60'
-              }`}
+              className={`px-4 py-2 rounded-xl text-xs font-semibold transition`}
+              style={{
+                background: activeTab === 'preview' ? '#d4844f' : '#1a1a1a',
+                color: activeTab === 'preview' ? '#0f0f0f' : '#daa520',
+                border: `1px solid ${activeTab === 'preview' ? '#daa520' : '#2d5f4f'}`,
+              }}
             >
               👀 Exemplo de Dossiê Gerado
             </button>
@@ -115,53 +122,56 @@ export default function LandingPage() {
 
           {activeTab === 'features' ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
-              <div className="glass-card gradient-border p-6 rounded-2xl space-y-3 hover:border-indigo-500/40 transition group">
-                <div className="h-10 w-10 bg-indigo-950/80 border border-indigo-700/50 rounded-xl flex items-center justify-center text-indigo-400 text-xl font-bold group-hover:scale-110 transition-transform">
+              {/* Card 1 */}
+              <div className="p-6 rounded-2xl space-y-3 transition group" style={{ background: '#1a1a1a', border: '1px solid #2d5f4f' }}>
+                <div className="h-10 w-10 rounded-xl flex items-center justify-center text-xl font-bold" style={{ background: '#2d5f4f', color: '#daa520' }}>
                   💬
                 </div>
-                <h3 className="font-bold text-white text-base">Entrevistador Camaleão</h3>
-                <p className="text-xs text-slate-400 leading-relaxed">
+                <h3 className="font-bold text-base" style={{ color: '#e8dcc8' }}>Entrevistador Camaleão</h3>
+                <p className="text-xs leading-relaxed" style={{ color: '#888' }}>
                   Sem formulários chatos. A IA se adapta à sua área específica e realiza perguntas inteligentes em cadeia.
                 </p>
               </div>
 
-              <div className="glass-card gradient-border p-6 rounded-2xl space-y-3 hover:border-emerald-500/40 transition group">
-                <div className="h-10 w-10 bg-emerald-950/80 border border-emerald-700/50 rounded-xl flex items-center justify-center text-emerald-400 text-xl font-bold group-hover:scale-110 transition-transform">
+              {/* Card 2 */}
+              <div className="p-6 rounded-2xl space-y-3 transition group" style={{ background: '#1a1a1a', border: '1px solid #2d5f4f' }}>
+                <div className="h-10 w-10 rounded-xl flex items-center justify-center text-xl font-bold" style={{ background: '#2d5f4f', color: '#d4844f' }}>
                   ⚙️
                 </div>
-                <h3 className="font-bold text-white text-base">Competências Ocultas</h3>
-                <p className="text-xs text-slate-400 leading-relaxed">
+                <h3 className="font-bold text-base" style={{ color: '#e8dcc8' }}>Competências Ocultas</h3>
+                <p className="text-xs leading-relaxed" style={{ color: '#888' }}>
                   Identifica ferramentas, máquinas, softwares e habilidades paralelas que não apareciam no seu currículo anterior.
                 </p>
               </div>
 
-              <div className="glass-card gradient-border p-6 rounded-2xl space-y-3 hover:border-sky-500/40 transition group">
-                <div className="h-10 w-10 bg-sky-950/80 border border-sky-700/50 rounded-xl flex items-center justify-center text-sky-400 text-xl font-bold group-hover:scale-110 transition-transform">
+              {/* Card 3 */}
+              <div className="p-6 rounded-2xl space-y-3 transition group" style={{ background: '#1a1a1a', border: '1px solid #2d5f4f' }}>
+                <div className="h-10 w-10 rounded-xl flex items-center justify-center text-xl font-bold" style={{ background: '#2d5f4f', color: '#daa520' }}>
                   📄
                 </div>
-                <h3 className="font-bold text-white text-base">Formatos Prontos</h3>
-                <p className="text-xs text-slate-400 leading-relaxed">
+                <h3 className="font-bold text-base" style={{ color: '#e8dcc8' }}>Formatos Prontos</h3>
+                <p className="text-xs leading-relaxed" style={{ color: '#888' }}>
                   Gera instantaneamente currículos focados em área técnica, gestão ou transição de carreira prontos para envio.
                 </p>
               </div>
             </div>
           ) : (
-            <div className="glass-card p-6 md:p-8 rounded-2xl text-left space-y-4 max-w-3xl mx-auto border border-slate-800">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                <span className="text-xs font-bold text-indigo-400 uppercase tracking-wider">
+            <div className="p-6 md:p-8 rounded-2xl text-left space-y-4 max-w-3xl mx-auto" style={{ background: '#1a1a1a', border: '1px solid #2d5f4f' }}>
+              <div className="flex items-center justify-between pb-3" style={{ borderBottom: '1px solid #2d5f4f' }}>
+                <span className="text-xs font-bold uppercase tracking-wider" style={{ color: '#daa520' }}>
                   Exemplo da Matriz Extraída
                 </span>
-                <span className="text-xs bg-emerald-950 border border-emerald-800 text-emerald-300 px-2.5 py-0.5 rounded-full font-medium">
+                <span className="text-xs px-2.5 py-0.5 rounded-full font-medium" style={{ background: '#2d5f4f', color: '#daa520', border: '1px solid #3a7d66' }}>
                   Taxa de Compatibilidade 98%
                 </span>
               </div>
-              <div className="space-y-3 text-xs md:text-sm text-slate-300">
+              <div className="space-y-3 text-xs md:text-sm" style={{ color: '#b8b8b8' }}>
                 <p>
-                  <strong className="text-white">Perfil Mapeado:</strong> Profissional Polivalente de Operações e Suporte Técnico.
+                  <strong style={{ color: '#e8dcc8' }}>Perfil Mapeado:</strong> Profissional Polivalente de Operações e Suporte Técnico.
                 </p>
                 <div className="flex flex-wrap gap-2 pt-1">
                   {['Manutenção Preventiva', 'ERP TOTVS', 'Gestão de Estoque', 'Atendimento N2', 'Automação em Excel', 'Análise de Gargalos'].map((skill, idx) => (
-                    <span key={idx} className="bg-slate-800 border border-slate-700 text-indigo-300 px-3 py-1 rounded-lg">
+                    <span key={idx} className="px-3 py-1 rounded-lg" style={{ background: '#2d5f4f', color: '#daa520', border: '1px solid #3a7d66' }}>
                       {skill}
                     </span>
                   ))}
@@ -172,10 +182,10 @@ export default function LandingPage() {
         </div>
       </main>
 
-      {}
-      <footer className="max-w-7xl w-full mx-auto px-6 py-6 border-t border-slate-800/80 text-center text-xs text-slate-400 flex flex-col sm:flex-row items-center justify-between gap-3 relative z-10 backdrop-blur-md">
+      {/* Footer */}
+      <footer className="max-w-7xl w-full mx-auto px-6 py-6 text-center text-xs flex flex-col sm:flex-row items-center justify-between gap-3 relative z-10 backdrop-blur-md" style={{ borderTop: '1px solid #2d5f4f', color: '#888' }}>
         <div>© {new Date().getFullYear()} Talento Oculto. Todos os direitos reservados.</div>
-        <div className="flex items-center gap-4 text-slate-400">
+        <div className="flex items-center gap-4">
           <span>Privacidade</span>
           <span>•</span>
           <span>Termos de Uso</span>
