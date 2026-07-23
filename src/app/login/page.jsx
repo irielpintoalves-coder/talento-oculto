@@ -21,26 +21,30 @@ function LoginContent() {
   );
 
   useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+  const checkAuth = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
 
-      if (user) {
-        // Busca perfil do usuário pré-cadastrado pelo e-mail
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('*')
-          .ilike('email', user.email)
-          .maybeSingle();
+    if (user) {
+      console.log('👉 [1] E-mail retornado pelo Google:', user.email);
 
-        // 🛑 VALIDAÇÃO DE SEGURANÇA: Se não existir perfil ou estiver inativo, encerra sessão
-        if (!profile || profile.is_active === false) {
-          await supabase.auth.signOut();
-          setUser(null);
-          setRole(null);
-          setUnauthorized(true);
-          setLoading(false);
-          return;
-        }
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .ilike('email', user.email)
+        .maybeSingle();
+
+      console.log('👉 [2] Perfil retornado do Banco:', profile);
+      console.log('👉 [3] Erro da consulta Supabase:', profileError);
+
+      if (!profile || profile.is_active === false) {
+        console.log('👉 [4] BARRADO PORQUE:', !profile ? 'Perfil retornou NULL' : 'is_active é FALSE');
+        await supabase.auth.signOut();
+        setUser(null);
+        setRole(null);
+        setUnauthorized(true);
+        setLoading(false);
+        return;
+      }
 
         // 🔄 SINCRONIZAÇÃO: Garante que o ID do Google Auth seja vinculado ao perfil
         if (!profile.id) {
