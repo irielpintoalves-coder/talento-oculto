@@ -36,11 +36,11 @@ export const authOptions = {
         }
 
         // Consulta a tabela 'users' no Supabase
-        const { data, error } = await supabase
-          .from("users")
-          .select("is_active")
-          .eq("email", user.email)
-          .maybeSingle();
+const { data, error } = await supabase
+  .from("allowed_emails")  // ✅ CORRETO!
+  .select("email")
+  .ilike("email", user.email)
+  .maybeSingle();
 
         if (error) {
           console.error("[NextAuth Supabase Error]:", error.message);

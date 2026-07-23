@@ -5,7 +5,7 @@ import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { createBrowserClient } from '@supabase/ssr';
 
-/*export default function LandingPage() {
+export default function LandingPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('features');
@@ -17,39 +17,7 @@ import { createBrowserClient } from '@supabase/ssr';
   }, [status, router]);
 
   return (
-<div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between selection:bg-indigo-500 selection:text-white relative overflow-hidden">*/
-	
-	
-	export default function LandingPage() {
-  const router = useRouter();
-  const [activeTab, setActiveTab] = useState('features');
-
-  const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  );
-
-  const handleGoogleLogin = async () => {
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/api/auth/callback`,
-        },
-      });
-
-      if (error) {
-        console.error('Erro no login:', error);
-        alert('Erro ao fazer login. Tente novamente.');
-      }
-    } catch (err) {
-      console.error('Erro crítico:', err);
-    }
-  };
-
-  return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between selection:bg-indigo-500 selection:text-white relative overflow-hidden">
-
       {}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-indigo-600/15 blur-[140px] rounded-full pointer-events-none animate-glow"></div>
       <div className="absolute top-[400px] right-0 w-[500px] h-[400px] bg-emerald-500/10 blur-[120px] rounded-full pointer-events-none"></div>
