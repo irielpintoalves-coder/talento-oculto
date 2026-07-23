@@ -8,7 +8,7 @@ export async function GET(request) {
   const next = searchParams.get('next') ?? '/interview';
 
   if (!code) {
-    return NextResponse.redirect(`${origin}/?error=no_code`);
+    return NextResponse.redirect(`${origin}/login?error=no_code`);
   }
 
   try {
@@ -28,51 +28,46 @@ export async function GET(request) {
                 cookieStore.set(name, value, options)
               );
             } catch {
-              // Ignora em chamadas de Server Components
+              // Ignora se chamado de Server Component sem middleware ativo
             }
           },
         },
       }
     );
 
-    // 1. Troca o código OAuth pela sessão do usuário
+    // Realiza a troca do código OAuth por uma sessão válida
     const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
 
     if (exchangeError) {
-      console.error('Erro na troca de código:', exchangeError.message);
-      return NextResponse.redirect(`${origin}/?error=auth_failed`);
+      console.error('Erro na troca do código de sessão:', exchangeError.message);
+      return NextResponse.redirect(`${origin}/login?error=auth_failed`);
     }
 
-    // 2. Pega as informações do e-mail retornado pelo Google
+    // Busca os dados do usuário autenticado
     const { data: { user }, error: userError } = await supabase.auth.getUser();
 
     if (userError || !user || !user.email) {
-      return NextResponse.redirect(`${origin}/?error=user_not_found`);
+      return NextResponse.redirect(`${origin}/login?error=user_not_found`);
     }
 
-    // 3. VERIFICAÇÃO NA TABELA 'users'
-    const { data: dbUser, error: dbError } = await supabase
-      .from('users')
-      .select('is_active')
+    // Validação da Whitelist consultando a tabela 'allowed_emails' (ignorando maiúsculas/minúsculas)
+    const { data: allowedUser, error: dbError } = await supabase
+      .from('allowed_emails')
+      .select('email')
       .ilike('email', user.email)
       .maybeSingle();
 
-    // Se houver erro, se o e-mail NÃO existir na tabela, OU se 'is_active' NÃO for true (ex: false)
-    if (dbError || !dbUser || dbUser.is_active !== true) {
-      console.warn(`[Acesso Negado] O e-mail ${user.email} não está ativo ou não foi encontrado.`);
-      
-      // Desloga o usuário imediatamente
+    if (dbError || !allowedUser) {
+      // Encerra a sessão imediatamente se o e-mail não estiver na tabela
       await supabase.auth.signOut();
-      
-      // Redireciona de volta para a tela de login com o parâmetro de erro
-      return NextResponse.redirect(`${origin}/?error=unauthorized`);
+      return NextResponse.redirect(`${origin}/login?error=unauthorized`);
     }
 
-    // 4. Sucesso! E-mail existe e is_active === true
+    // Redireciona com sucesso para a página protegida
     return NextResponse.redirect(`${origin}${next}`);
 
   } catch (err) {
-    console.error('Erro crítico no callback:', err);
-    return NextResponse.redirect(`${origin}/?error=server_error`);
+    console.error('Erro crítico na rota de callback:', err);
+    return NextResponse.redirect(`${origin}/login?error=server_error`);
   }
 }
