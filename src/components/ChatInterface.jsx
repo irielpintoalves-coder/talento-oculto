@@ -1,9 +1,23 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { createBrowserClient } from '@supabase/ssr';
+import Link from 'next/link';
 import ResultDashboard from './ResultDashboard';
 
 export default function ChatInterface() {
+  const router = useRouter();
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  );
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push('/');
+    router.refresh();
+  };
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
@@ -117,29 +131,62 @@ export default function ChatInterface() {
       )}
 
       {/* Barra Superior */}
-      <header className="flex items-center justify-between px-6 py-4 shadow-md" style={{ background: '#1a1a1a', borderBottom: '1px solid #2d5f4f' }}>
+      <header className="flex flex-col sm:flex-row items-center justify-between px-6 py-4 shadow-md gap-3" style={{ background: '#1a1a1a', borderBottom: '1px solid #2d5f4f' }}>
         <div className="flex items-center space-x-3">
-          <img 
-  src="/favicon.png" 
-  alt="Talento Oculto" 
-  className="w-12 h-12 logo-glow-pulse"
-/>
-          <h1 className="font-bold text-base md:text-lg" style={{ color: '#daa520' }}>Talento Oculto — Entrevistador Camaleão</h1>
+          <Link href="/" className="flex items-center space-x-3 group">
+            <img 
+              src="/favicon.png" 
+              alt="Talento Oculto" 
+              className="w-10 h-10 logo-glow-pulse"
+            />
+            <h1 className="font-bold text-base md:text-lg" style={{ color: '#daa520' }}>
+              Talento Oculto <span className="text-xs font-normal text-gray-400">— Entrevistador Camaleão</span>
+            </h1>
+          </Link>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="text-xs px-3 py-1.5 rounded-full font-medium" style={{ background: '#2d5f4f', color: '#daa520', border: '1px solid #3a7d66' }}>
+
+        <div className="flex items-center flex-wrap gap-2 text-xs">
+          {/* Link para Home */}
+          <Link
+            href="/"
+            className="px-3 py-1.5 rounded-lg font-medium transition hover:bg-[#252525]"
+            style={{ color: '#e8dcc8' }}
+          >
+            🏠 Início
+          </Link>
+
+          {/* Link para Acesso/Login */}
+          <Link
+            href="/login"
+            className="px-3 py-1.5 rounded-lg font-semibold transition border hover:bg-[#252525]"
+            style={{ borderColor: '#2d5f4f', color: '#daa520' }}
+          >
+            🔐 Gerenciar Logins
+          </Link>
+
+          {/* Contador de Interações */}
+          <div className="px-3 py-1.5 rounded-full font-medium" style={{ background: '#2d5f4f', color: '#daa520', border: '1px solid #3a7d66' }}>
             Interações: {questionCount}
           </div>
 
+          {/* Botão de Concluir Relatório */}
           <button
             onClick={handleGenerateReport}
             disabled={generatingReport}
-            className={`text-xs px-4 py-2 rounded-full font-semibold transition shadow-md text-white ${
+            className={`px-4 py-1.5 rounded-full font-semibold transition shadow-md text-white ${
               isFinishedByAI || questionCount >= 5 ? 'animate-bounce' : ''
             }`}
             style={{ background: isFinishedByAI || questionCount >= 5 ? '#d4844f' : '#2d5f4f' }}
           >
-            {isFinishedByAI ? '🎉 Ver Relatório & Currículos Prontos' : '📊 Concluir e Gerar Relatório'}
+            {isFinishedByAI ? '🎉 Ver Relatório' : '📊 Gerar Relatório'}
+          </button>
+
+          {/* Botão de Logout */}
+          <button
+            onClick={handleLogout}
+            className="px-3 py-1.5 rounded-lg font-semibold transition bg-red-950/40 text-red-400 border border-red-900 hover:bg-red-900/60"
+          >
+            Sair
           </button>
         </div>
       </header>

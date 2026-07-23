@@ -1,18 +1,45 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { createBrowserClient } from '@supabase/ssr';
-import { useSearchParams } from 'next/navigation';
-import { Suspense } from 'react';
+import Link from 'next/link';
 
-function LoginForm() {
-  const searchParams = useSearchParams();
-  const error = searchParams.get('error');
+export default function LoginPage() {
+  const router = useRouter();
+  const [user, setUser] = useState(null);
+  const [role, setRole] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Inicializa o Supabase no lado do cliente (Browser)
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   );
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (user) {
+        setUser(user);
+        
+        // Busca o nível de acesso (role) do usuário no banco
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .ilike('email', user.email)
+          .maybeSingle();
+
+        if (profile) {
+          setRole(profile.role);
+        }
+      }
+      
+      setLoading(false);
+    };
+
+    checkAuth();
+  }, [supabase]);
 
   const handleGoogleLogin = async () => {
     await supabase.auth.signInWithOAuth({
@@ -23,55 +50,117 @@ function LoginForm() {
     });
   };
 
-  return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-6 bg-gray-50">
-      <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-xl shadow-lg text-center">
-        <h1 className="text-2xl font-bold text-gray-900">Talento Oculto</h1>
-        <p className="text-sm text-gray-600">
-          Acesse a plataforma utilizando sua conta Google autorizada.
-        </p>
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+    setRole(null);
+    router.refresh();
+  };
 
-        {/* Mensagem caso o e-mail seja barrado pela whitelist */}
-        {error === 'unauthorized' && (
-          <div className="p-3 text-sm text-red-700 bg-red-100 rounded-lg border border-red-200">
-            Acesso negado: Este e-mail não possui permissão na whitelist.
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#0f0f0f] text-[#daa520]">
+        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-[#daa520]"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-[#0f0f0f] text-[#e8dcc8] relative overflow-hidden">
+      {/* Botão de retorno / Logo */}
+      <div className="absolute top-6 left-6">
+        <Link href="/" className="flex items-center gap-2">
+          <img src="/favicon.png" alt="Talento Oculto" className="w-8 h-8" />
+          <span className="font-extrabold text-sm" style={{ color: '#daa520' }}>
+            Talento <span style={{ color: '#d4844f' }}>Oculto</span>
+          </span>
+        </Link>
+      </div>
+
+      <div className="max-w-md w-full rounded-2xl p-8 space-y-6 shadow-2xl" style={{ background: '#1a1a1a', border: '1px solid #2d5f4f' }}>
+        {user ? (
+          /* ESTADO 1: USUÁRIO JÁ AUTENTICADO */
+          <div className="space-y-6 text-center">
+            <div className="inline-flex p-3 rounded-full bg-[#2d5f4f]/30 border border-[#3a7d66]">
+              <span className="text-2xl">👤</span>
+            </div>
+            
+            <div>
+              <h1 className="text-xl font-bold text-[#daa520]">Sessão Ativa</h1>
+              <p className="text-xs text-gray-400 mt-1">{user.email}</p>
+              
+              {role && (
+                <span className="inline-block mt-3 text-xs uppercase tracking-wider font-extrabold px-3 py-1 rounded-full bg-[#2d5f4f] text-[#daa520] border border-[#3a7d66]">
+                  Perfil: {role}
+                </span>
+              )}
+            </div>
+			{role === 'master' && (
+  <button
+    onClick={() => router.push('/master')}
+    className="w-full py-3 px-4 rounded-xl font-semibold text-sm transition text-[#0f0f0f] shadow-lg"
+    style={{ background: '#daa520' }}
+  >
+    ⚙️ Abrir Painel Master (Gerenciar Licenças)
+  </button>
+)}
+
+            <div className="space-y-3 pt-2">
+              <button
+                onClick={() => router.push('/interview')}
+                className="w-full py-3 px-4 rounded-xl font-semibold text-sm transition text-white shadow-lg"
+                style={{ background: '#2d5f4f' }}
+              >
+                🚀 Ir para a Entrevista
+              </button>
+
+              <button
+                onClick={() => router.push('/')}
+                className="w-full py-3 px-4 rounded-xl font-semibold text-sm transition text-[#daa520] border border-[#2d5f4f] hover:bg-[#252525]"
+              >
+                🏠 Página Inicial
+              </button>
+
+              <button
+                onClick={handleLogout}
+                className="w-full py-3 px-4 rounded-xl font-semibold text-sm transition text-red-400 border border-red-900 bg-red-950/40 hover:bg-red-900/60"
+              >
+                Encerrar Sessão (Logout)
+              </button>
+            </div>
+          </div>
+        ) : (
+          /* ESTADO 2: USUÁRIO NÃO LOGADO */
+          <div className="space-y-6 text-center">
+            <div className="space-y-2">
+              <h1 className="text-2xl font-bold text-[#daa520]">Acesso ao Sistema</h1>
+              <p className="text-xs text-gray-400">
+                Entre com sua conta do Google autorizada para validar sua licença ou perfil de acesso.
+              </p>
+            </div>
+
+            <button
+              onClick={handleGoogleLogin}
+              className="w-full flex items-center justify-center gap-3 font-bold px-6 py-3.5 rounded-xl transition-all shadow-xl text-sm"
+              style={{ background: '#d4844f', color: '#0f0f0f', border: '1px solid #daa520' }}
+            >
+              <svg className="w-5 h-5" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z" />
+                <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.11-6.72-4.95H1.19v3.15C3.17 21.32 7.23 24 12 24z" />
+                <path fill="#FBBC05" d="M5.28 14.25c-.25-.72-.38-1.49-.38-2.25s.13-1.53.38-2.25V6.6H1.19C.43 8.14 0 9.99 0 12s.43 3.86 1.19 5.4l4.09-3.15z" />
+                <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.23 0 3.17 2.68 1.19 6.6l4.09 3.15c.95-2.84 3.6-4.95 6.72-4.95z" />
+              </svg>
+              <span>Entrar com o Google</span>
+            </button>
+
+            <div className="pt-2 text-left bg-[#0f0f0f] p-4 rounded-xl border border-[#2d5f4f] text-[11px] text-gray-400 space-y-1">
+              <p className="font-semibold text-[#e8dcc8]">💡 Regras de Acesso:</p>
+              <p>• Usuários com função <strong>Master</strong> ou <strong>Admin</strong> cadastrada.</p>
+              <p>• E-mails autorizados em uma Organização ativa.</p>
+            </div>
           </div>
         )}
-
-        <button
-          onClick={handleGoogleLogin}
-          className="w-full flex items-center justify-center gap-3 py-3 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
-        >
-          {/* Ícone simples do Google */}
-          <svg className="w-5 h-5" viewBox="0 0 24 24">
-            <path
-              fill="#4285F4"
-              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-            />
-            <path
-              fill="#34A853"
-              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-            />
-            <path
-              fill="#FBBC05"
-              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
-            />
-            <path
-              fill="#EA4335"
-              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
-            />
-          </svg>
-          Entrar com o Google
-        </button>
       </div>
-    </main>
-  );
-}
-
-export default function LoginPage() {
-  return (
-    <Suspense fallback={<div className="flex h-screen items-center justify-center">Carregando...</div>}>
-      <LoginForm />
-    </Suspense>
+    </div>
   );
 }

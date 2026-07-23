@@ -1,8 +1,23 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { createBrowserClient } from '@supabase/ssr';
+import Link from 'next/link';
 
 export default function ResultDashboard({ data, onRestart }) {
+  const router = useRouter();
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  );
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push('/');
+    router.refresh();
+  };
+
   const [activeTab, setActiveTab] = useState('summary');
   const [selectedCvIndex, setSelectedCvIndex] = useState(0);
   const [copiedIndex, setCopiedIndex] = useState(null);
@@ -38,25 +53,66 @@ export default function ResultDashboard({ data, onRestart }) {
   return (
     <div className="min-h-screen flex flex-col" style={{ background: '#0f0f0f', color: '#e8dcc8' }}>
       {/* CORRIGIDO: Comentário JSX correto */}
+      {/* Header do Dashboard */}
       <header className="sticky top-0 z-20 shadow-xl" style={{ background: '#1a1a1a', borderBottom: '1px solid #2d5f4f' }}>
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 p-4">
-          <div>
-            <div className="flex items-center gap-2">
-              <img src="/favicon.png" alt="Talento Oculto" className="w-12 h-12 logo-glow-pulse" />
-              <h1 className="text-xl font-bold" style={{ color: '#daa520' }}>
-                Talento Oculto — Dossiê Profissional Completo
-              </h1>
-            </div>
-            <p className="text-xs mt-1" style={{ color: '#888' }}>
-              Perfil mapeado com sucesso a partir de suas interações detalhadas.
-            </p>
-          </div>
           <div className="flex items-center gap-3">
-            <button onClick={handlePrint} className="text-xs px-4 py-2 rounded-lg font-semibold transition flex items-center gap-2" style={{ background: '#2d5f4f', color: '#daa520', border: '1px solid #3a7d66' }}>
-              🖨️ Imprimir / Salvar PDF
+            <Link href="/" className="flex items-center gap-2 group">
+              <img src="/favicon.png" alt="Talento Oculto" className="w-10 h-10 logo-glow-pulse" />
+              <div>
+                <h1 className="text-lg font-bold" style={{ color: '#daa520' }}>
+                  Talento Oculto — Dossiê Profissional
+                </h1>
+                <p className="text-[11px]" style={{ color: '#888' }}>
+                  Perfil mapeado a partir das suas interações.
+                </p>
+              </div>
+            </Link>
+          </div>
+
+          <div className="flex items-center flex-wrap gap-2 text-xs">
+            {/* Link Início */}
+            <Link
+              href="/"
+              className="px-3 py-2 rounded-lg font-medium transition hover:bg-[#252525]"
+              style={{ color: '#e8dcc8' }}
+            >
+              🏠 Início
+            </Link>
+
+            {/* Link Gerenciar Logins */}
+            <Link
+              href="/login"
+              className="px-3 py-2 rounded-lg font-semibold transition border hover:bg-[#252525]"
+              style={{ borderColor: '#2d5f4f', color: '#daa520' }}
+            >
+              🔐 Acessos
+            </Link>
+
+            {/* Imprimir */}
+            <button 
+              onClick={handlePrint} 
+              className="px-3 py-2 rounded-lg font-semibold transition flex items-center gap-1.5" 
+              style={{ background: '#2d5f4f', color: '#daa520', border: '1px solid #3a7d66' }}
+            >
+              🖨️ PDF
             </button>
-            <button onClick={onRestart} className="text-xs px-4 py-2 rounded-lg font-semibold transition shadow-md" style={primaryButtonStyle}>
-              🔄 Nova Entrevista
+
+            {/* Nova Entrevista */}
+            <button 
+              onClick={onRestart} 
+              className="px-3 py-2 rounded-lg font-semibold transition shadow-md" 
+              style={primaryButtonStyle}
+            >
+              🔄 Refazer
+            </button>
+
+            {/* Sair */}
+            <button
+              onClick={handleLogout}
+              className="px-3 py-2 rounded-lg font-semibold transition bg-red-950/40 text-red-400 border border-red-900 hover:bg-red-900/60"
+            >
+              Sair
             </button>
           </div>
         </div>

@@ -50,26 +50,39 @@ export async function GET(request) {
       return NextResponse.redirect(`${origin}/?error=user_not_found`);
     }
 
-    // 3. VERIFICAÇÃO NA TABELA 'users'
-    const { data: dbUser, error: dbError } = await supabase
-      .from('users')
-      .select('is_active')
+    // -------------------------------------------------------------
+    // 3. VERIFICAÇÃO DE HIERARQUIA E PERMISSÕES
+    // -------------------------------------------------------------
+
+    // NÍVEL 1: É USUÁRIO MASTER (Super Admin)?
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role, id')
       .ilike('email', user.email)
       .maybeSingle();
 
-    // Se houver erro, se o e-mail NÃO existir na tabela, OU se 'is_active' NÃO for true (ex: false)
-    if (dbError || !dbUser || dbUser.is_active !== true) {
-      console.warn(`[Acesso Negado] O e-mail ${user.email} não está ativo ou não foi encontrado.`);
-      
-      // Desloga o usuário imediatamente
-      await supabase.auth.signOut();
-      
-      // Redireciona de volta para a tela de login com o parâmetro de erro
-      return NextResponse.redirect(`${origin}/?error=unauthorized`);
+    if (profile?.role === 'master') {
+      // Se for o primeiro acesso do Master, vincula o id da conta Google ao perfil
+      if (!profile.id) {
+        await supabase
+          .from('profiles')
+          .update({ id: user.id })
+          .ilike('email', user.email);
+      }
+
+      console.log(`[Acesso Concedido] Usuário Master: ${user.email}`);
+      return NextResponse.redirect(`${origin}${next}`);
     }
 
-    // 4. Sucesso! E-mail existe e is_active === true
-    return NextResponse.redirect(`${origin}${next}`);
+    // -------------------------------------------------------------
+    // SEM PERMISSÃO DE ACESSO
+    // -------------------------------------------------------------
+    console.warn(`[Acesso Negado] O e-mail ${user.email} não possui licença ativa ou perfil Master/Admin.`);
+    
+    // Desloga o usuário
+    await supabase.auth.signOut();
+    
+    return NextResponse.redirect(`${origin}/?error=unauthorized`);
 
   } catch (err) {
     console.error('Erro crítico no callback:', err);
