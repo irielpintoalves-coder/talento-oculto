@@ -51,7 +51,6 @@ export default function ChatInterface() {
       if (response.ok) {
         let replyText = data.reply || '';
 
-        // Detectar tag de conclusão
         if (replyText.includes('[ENTREVISTA_CONCLUIDA]')) {
           replyText = replyText.replace('[ENTREVISTA_CONCLUIDA]', '').trim();
           setIsFinishedByAI(true);
@@ -100,56 +99,59 @@ export default function ChatInterface() {
     }
   };
 
-  // Se o relatório foi gerado, renderiza o dashboard
   if (reportData) {
     return <ResultDashboard data={reportData} onRestart={() => window.location.reload()} />;
   }
 
   return (
-    <div className="flex flex-col h-screen bg-slate-900 text-slate-100 relative">
-      {/* Overlay de Carregamento da Geração de Relatório */}
+    <div className="flex flex-col h-screen relative" style={{ background: '#0f0f0f', color: '#e8dcc8' }}>
+      {/* Overlay de Carregamento */}
       {generatingReport && (
-        <div className="absolute inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center space-y-4">
-          <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-          <h2 className="text-xl font-bold text-white">Sintetizando Dossiê Profissional...</h2>
-          <p className="text-sm text-slate-400 max-w-md">
+        <div className="absolute inset-0 z-50 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center space-y-4" style={{ background: 'rgba(15,15,15,0.95)' }}>
+          <div className="w-12 h-12 border-4 rounded-full animate-spin" style={{ borderColor: '#daa520', borderTopColor: 'transparent' }}></div>
+          <h2 className="text-xl font-bold" style={{ color: '#daa520' }}>Sintetizando Dossiê Profissional...</h2>
+          <p className="text-sm max-w-md" style={{ color: '#888' }}>
             Processando o histórico completo das suas respostas, extraindo matrizes de hard/soft skills e estruturando seus currículos otimizados.
           </p>
         </div>
       )}
 
       {/* Barra Superior */}
-      <header className="flex items-center justify-between px-6 py-4 bg-slate-800 border-b border-slate-700 shadow-md">
+      <header className="flex items-center justify-between px-6 py-4 shadow-md" style={{ background: '#1a1a1a', borderBottom: '1px solid #2d5f4f' }}>
         <div className="flex items-center space-x-3">
-          <div className="h-3 w-3 bg-emerald-500 rounded-full animate-pulse"></div>
-          <h1 className="font-bold text-base md:text-lg text-white">Talento Oculto — Entrevistador Camaleão</h1>
+          <img 
+  src="/favicon.png" 
+  alt="Talento Oculto" 
+  className="w-6 h-6 logo-glow-pulse"
+/>
+          <h1 className="font-bold text-base md:text-lg" style={{ color: '#daa520' }}>Talento Oculto — Entrevistador Camaleão</h1>
         </div>
         <div className="flex items-center gap-3">
-          <div className="text-xs bg-slate-700 px-3 py-1.5 rounded-full text-slate-300 font-medium">
+          <div className="text-xs px-3 py-1.5 rounded-full font-medium" style={{ background: '#2d5f4f', color: '#daa520', border: '1px solid #3a7d66' }}>
             Interações: {questionCount}
           </div>
 
           <button
             onClick={handleGenerateReport}
             disabled={generatingReport}
-            className={`text-xs px-4 py-2 rounded-full font-semibold transition shadow-md ${
-              isFinishedByAI || questionCount >= 5
-                ? 'bg-emerald-600 hover:bg-emerald-500 text-white animate-bounce'
-                : 'bg-indigo-600 hover:bg-indigo-500 text-white'
+            className={`text-xs px-4 py-2 rounded-full font-semibold transition shadow-md text-white ${
+              isFinishedByAI || questionCount >= 5 ? 'animate-bounce' : ''
             }`}
+            style={{ background: isFinishedByAI || questionCount >= 5 ? '#d4844f' : '#2d5f4f' }}
           >
             {isFinishedByAI ? '🎉 Ver Relatório & Currículos Prontos' : '📊 Concluir e Gerar Relatório'}
           </button>
         </div>
       </header>
 
-      {/* Banner de Aviso quando a IA indica conclusão */}
+      {/* Banner de Aviso */}
       {isFinishedByAI && (
-        <div className="bg-emerald-900/80 border-b border-emerald-700 text-emerald-200 px-6 py-3 text-sm flex items-center justify-between">
+        <div className="text-sm flex items-center justify-between px-6 py-3" style={{ background: '#2d5f4f', color: '#daa520', borderBottom: '1px solid #3a7d66' }}>
           <span>✨ A entrevista foi concluída com sucesso! Clique no botão para gerar seus currículos.</span>
           <button
             onClick={handleGenerateReport}
-            className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-3 py-1 rounded-lg text-xs transition"
+            className="font-bold px-3 py-1 rounded-lg text-xs transition"
+            style={{ background: '#d4844f', color: '#0f0f0f' }}
           >
             Gerar Agora
           </button>
@@ -161,11 +163,14 @@ export default function ChatInterface() {
         {messages.map((msg, index) => (
           <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div
-              className={`max-w-[85%] md:max-w-[75%] rounded-2xl px-5 py-3.5 shadow-sm text-sm md:text-base leading-relaxed ${
-                msg.role === 'user'
-                  ? 'bg-indigo-600 text-white rounded-br-none'
-                  : 'bg-slate-800 text-slate-200 border border-slate-700 rounded-bl-none'
-              }`}
+              className={`max-w-[85%] md:max-w-[75%] rounded-2xl px-5 py-3.5 shadow-sm text-sm md:text-base leading-relaxed`}
+              style={{
+                background: msg.role === 'user' ? '#d4844f' : '#1a1a1a',
+                color: msg.role === 'user' ? '#0f0f0f' : '#e8dcc8',
+                border: msg.role === 'user' ? 'none' : '1px solid #2d5f4f',
+                borderBottomRightRadius: msg.role === 'user' ? '4px' : '20px',
+                borderBottomLeftRadius: msg.role === 'user' ? '20px' : '4px',
+              }}
             >
               {msg.content}
             </div>
@@ -174,10 +179,10 @@ export default function ChatInterface() {
 
         {loading && (
           <div className="flex justify-start">
-            <div className="bg-slate-800 border border-slate-700 text-slate-400 rounded-2xl rounded-bl-none px-5 py-3.5 text-sm flex items-center space-x-2">
-              <span className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce"></span>
-              <span className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce [animation-delay:0.2s]"></span>
-              <span className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce [animation-delay:0.4s]"></span>
+            <div className="rounded-2xl rounded-bl-sm px-5 py-3.5 text-sm flex items-center space-x-2" style={{ background: '#1a1a1a', border: '1px solid #2d5f4f', color: '#888' }}>
+              <span className="w-2 h-2 rounded-full animate-bounce" style={{ background: '#daa520' }}></span>
+              <span className="w-2 h-2 rounded-full animate-bounce" style={{ background: '#daa520', animationDelay: '0.2s' }}></span>
+              <span className="w-2 h-2 rounded-full animate-bounce" style={{ background: '#daa520', animationDelay: '0.4s' }}></span>
               <span className="ml-2">Analisando histórico e formulando a próxima etapa...</span>
             </div>
           </div>
@@ -185,7 +190,7 @@ export default function ChatInterface() {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Sugestões de Resposta Rápida no início */}
+      {/* Sugestões de Resposta Rápida */}
       {messages.length === 1 && (
         <div className="px-4 py-2 max-w-4xl mx-auto w-full flex flex-wrap gap-2">
           {[
@@ -197,7 +202,8 @@ export default function ChatInterface() {
             <button
               key={idx}
               onClick={(e) => handleSubmit(e, chip)}
-              className="text-xs bg-slate-800 hover:bg-slate-700 text-indigo-300 border border-slate-700 px-3 py-1.5 rounded-full transition"
+              className="text-xs px-3 py-1.5 rounded-full transition"
+              style={{ background: '#1a1a1a', color: '#daa520', border: '1px solid #2d5f4f' }}
             >
               {chip}
             </button>
@@ -205,8 +211,8 @@ export default function ChatInterface() {
         </div>
       )}
 
-      {/* Caixa de Entrada de Texto */}
-      <footer className="bg-slate-800 border-t border-slate-700 p-4">
+      {/* Caixa de Entrada */}
+      <footer className="p-4" style={{ background: '#1a1a1a', borderTop: '1px solid #2d5f4f' }}>
         <form onSubmit={(e) => handleSubmit(e, null)} className="max-w-4xl mx-auto flex gap-3">
           <input
             type="text"
@@ -214,12 +220,18 @@ export default function ChatInterface() {
             onChange={(e) => setInput(e.target.value)}
             placeholder="Digite sua resposta detalhada..."
             disabled={loading || generatingReport}
-            className="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition text-sm md:text-base"
+            className="flex-1 rounded-xl px-4 py-3 text-sm md:text-base transition"
+            style={{
+              background: '#0f0f0f',
+              border: '1px solid #2d5f4f',
+              color: '#e8dcc8',
+            }}
           />
           <button
             type="submit"
             disabled={loading || !input.trim() || generatingReport}
-            className="bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-semibold px-6 py-3 rounded-xl transition flex items-center justify-center text-sm md:text-base shadow-lg shadow-indigo-600/20"
+            className="font-semibold px-6 py-3 rounded-xl transition flex items-center justify-center text-sm md:text-base shadow-lg disabled:opacity-50 text-white"
+            style={{ background: '#d4844f' }}
           >
             Enviar
           </button>
