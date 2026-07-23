@@ -77,8 +77,8 @@ export default function LandingPage() {
 
         {/* Botões do Header */}
         <div className="flex items-center gap-3">
-          <span className="hidden sm:inline-flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full" style={{ background: '#1a1a1a', border: '1px solid #2d5f4f', color: '#daa520' }}>
-            <span className="h-2 w-2 rounded-full animate-pulse" style={{ background: '#d4844f' }}></span> Sistema Ativo
+          <span className="hidden sm:inline-flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full" style={{ background: '#1a1a1a', border: '1px solid #2d5f4f', color: '#00F504' }}>
+            <span className="h-2 w-2 rounded-full animate-pulse" style={{ background: '#00F504' }}></span> Sistema Ativo
           </span>
 
           {!loading && (
