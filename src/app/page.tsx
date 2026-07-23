@@ -3,8 +3,9 @@
 import { useState, useEffect } from 'react';
 import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { createBrowserClient } from '@supabase/ssr';
 
-export default function LandingPage() {
+/*export default function LandingPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('features');
@@ -16,7 +17,39 @@ export default function LandingPage() {
   }, [status, router]);
 
   return (
+<div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between selection:bg-indigo-500 selection:text-white relative overflow-hidden">*/
+	
+	
+	export default function LandingPage() {
+  const router = useRouter();
+  const [activeTab, setActiveTab] = useState('features');
+
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  );
+
+  const handleGoogleLogin = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/api/auth/callback`,
+        },
+      });
+
+      if (error) {
+        console.error('Erro no login:', error);
+        alert('Erro ao fazer login. Tente novamente.');
+      }
+    } catch (err) {
+      console.error('Erro crítico:', err);
+    }
+  };
+
+  return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between selection:bg-indigo-500 selection:text-white relative overflow-hidden">
+
       {}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-indigo-600/15 blur-[140px] rounded-full pointer-events-none animate-glow"></div>
       <div className="absolute top-[400px] right-0 w-[500px] h-[400px] bg-emerald-500/10 blur-[120px] rounded-full pointer-events-none"></div>
@@ -68,7 +101,8 @@ export default function LandingPage() {
         {}
         <div className="pt-2 w-full flex flex-col items-center gap-4 max-w-md">
           <button
-            onClick={() => signIn('google', { callbackUrl: '/interview' })}
+            /*onClick={() => signIn('google', { callbackUrl: '/interview' })}*/
+			onClick={() => handleGoogleLogin()}
             className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-white via-slate-100 to-slate-200 hover:from-slate-100 hover:to-white text-slate-950 font-bold px-8 py-4 rounded-2xl transition-all duration-200 shadow-2xl hover:shadow-indigo-500/20 text-base md:text-lg group border border-white/40 transform hover:-translate-y-0.5"
           >
             <svg className="w-5 h-5 transition-transform group-hover:scale-110" viewBox="0 0 24 24">
