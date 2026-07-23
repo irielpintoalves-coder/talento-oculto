@@ -48,27 +48,54 @@ export default function ChatInterface() {
 
       setCurrentUser(user);
 
+      // Busca o perfil pelo e-mail
       const { data: userProfile } = await supabase
         .from('profiles')
         .select('*')
         .ilike('email', user.email)
         .maybeSingle();
 
-      if (userProfile) {
-        setProfile(userProfile);
-        setAttempts(userProfile.interview_attempts || 0);
+      // 🛑 VALIDAÇÃO 1: Usuário sem cadastro prévio ou inativo
+      if (!userProfile || userProfile.is_active === false) {
+        alert('⛔ Acesso Não Autorizado. Seu e-mail não possui uma licença ativa.');
+        await supabase.auth.signOut();
+        router.push('/login');
+        return;
+      }
 
-        // Se já tiver uma entrevista salva no Supabase, abre direto o Dossiê
-        if (userProfile.saved_interview) {
-          setReportData(userProfile.saved_interview);
-        }
+      // 🔄 AJUSTE TÉCNICO: Sincroniza o ID do Auth no perfil se ainda não estiver vinculado
+      if (!userProfile.id) {
+        await supabase
+          .from('profiles')
+          .update({ id: user.id })
+          .ilike('email', user.email);
+      }
+
+      // 🔀 VALIDAÇÃO 2: Redirecionamento por Nível de Acesso (Role)
+      if (userProfile.role === 'admin') {
+        router.push('/admin');
+        return;
+      }
+
+      if (userProfile.role === 'master') {
+        router.push('/master');
+        return;
+      }
+
+      // 👤 VALIDAÇÃO 3: Usuário Cliente / User Padrão
+      setProfile(userProfile);
+      setAttempts(userProfile.interview_attempts || 0);
+
+      // Se já tiver uma entrevista salva no Supabase, abre direto o Dossiê
+      if (userProfile.saved_interview) {
+        setReportData(userProfile.saved_interview);
       }
 
       setLoadingProfile(false);
     };
 
     loadUserProfile();
-  }, []);
+  }, [router, supabase]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });

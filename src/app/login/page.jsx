@@ -13,6 +13,7 @@ function LoginContent() {
   const [user, setUser] = useState(null);
   const [role, setRole] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [unauthorized, setUnauthorized] = useState(false);
 
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -22,17 +23,37 @@ function LoginContent() {
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      
+
       if (user) {
-        setUser(user);
+        // Busca perfil do usuário pré-cadastrado pelo e-mail
         const { data: profile } = await supabase
           .from('profiles')
-          .select('role')
+          .select('*')
           .ilike('email', user.email)
           .maybeSingle();
 
-        if (profile) setRole(profile.role);
+        // 🛑 VALIDAÇÃO DE SEGURANÇA: Se não existir perfil ou estiver inativo, encerra sessão
+        if (!profile || profile.is_active === false) {
+          await supabase.auth.signOut();
+          setUser(null);
+          setRole(null);
+          setUnauthorized(true);
+          setLoading(false);
+          return;
+        }
+
+        // 🔄 SINCRONIZAÇÃO: Garante que o ID do Google Auth seja vinculado ao perfil
+        if (!profile.id) {
+          await supabase
+            .from('profiles')
+            .update({ id: user.id })
+            .ilike('email', user.email);
+        }
+
+        setUser(user);
+        setRole(profile.role);
       }
+
       setLoading(false);
     };
 
@@ -40,6 +61,7 @@ function LoginContent() {
   }, [supabase]);
 
   const handleGoogleLogin = async () => {
+    setUnauthorized(false);
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
@@ -52,6 +74,7 @@ function LoginContent() {
     await supabase.auth.signOut();
     setUser(null);
     setRole(null);
+    setUnauthorized(false);
     router.refresh();
   };
 
@@ -62,6 +85,8 @@ function LoginContent() {
       </div>
     );
   }
+
+  const isUnauthorized = errorMessage === 'unauthorized' || unauthorized;
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-[#0f0f0f] text-[#e8dcc8] relative overflow-hidden">
@@ -75,9 +100,9 @@ function LoginContent() {
       </div>
 
       <div className="max-w-md w-full rounded-2xl p-8 space-y-6 shadow-2xl bg-[#1a1a1a] border border-[#2d5f4f]">
-        
+
         {/* ALERTA DE ACESSO NEGADO */}
-        {errorMessage === 'unauthorized' && !user && (
+        {isUnauthorized && !user && (
           <div className="p-4 rounded-xl bg-red-950/60 border border-red-800 text-red-200 text-xs space-y-1">
             <p className="font-bold text-red-400 text-sm">⛔ Acesso Não Autorizado</p>
             <p>Seu e-mail do Google não possui uma licença ativa ou cadastro prévio no sistema.</p>
@@ -89,11 +114,11 @@ function LoginContent() {
             <div className="inline-flex p-3 rounded-full bg-[#2d5f4f]/30 border border-[#3a7d66]">
               <span className="text-2xl">👤</span>
             </div>
-            
+
             <div>
               <h1 className="text-xl font-bold text-[#daa520]">Sessão Ativa</h1>
               <p className="text-xs text-gray-400 mt-1">{user.email}</p>
-              
+
               {role && (
                 <span className="inline-block mt-3 text-xs uppercase tracking-wider font-extrabold px-3 py-1 rounded-full bg-[#2d5f4f] text-[#daa520] border border-[#3a7d66]">
                   Perfil: {role}
