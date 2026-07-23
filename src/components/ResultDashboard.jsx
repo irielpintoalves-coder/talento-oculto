@@ -3,7 +3,7 @@
 import { useState } from 'react';
 
 export default function ResultDashboard({ data, onRestart }) {
-  const [activeTab, setActiveTab] = useState('summary'); // 'summary' | 'skills' | 'careers' | 'cv'
+  const [activeTab, setActiveTab] = useState('summary');
   const [selectedCvIndex, setSelectedCvIndex] = useState(0);
   const [copiedIndex, setCopiedIndex] = useState(null);
 
@@ -17,13 +17,30 @@ export default function ResultDashboard({ data, onRestart }) {
     window.print();
   };
 
+  const cardStyle = {
+    background: '#1a1a1a',
+    border: '1px solid #2d5f4f',
+  };
+
+  const primaryButtonStyle = {
+    background: '#d4844f',
+    color: '#0f0f0f',
+  };
+
+  const secondaryButtonStyle = {
+    background: '#2d5f4f',
+    color: '#daa520',
+    border: '1px solid #3a7d66',
+  };
+
   return (
     <div
-  className="min-h-screen flex flex-col"
-  style={{
-    background: '#0f0f0f',
-    color: '#e8dcc8'
-  }}
+      className="min-h-screen flex flex-col"
+      style={{
+        background: '#0f0f0f',
+        color: '#e8dcc8',
+      }}
+    >
 >
       {/* Cabeçalho do Painel */}
       <header
