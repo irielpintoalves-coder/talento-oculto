@@ -69,8 +69,7 @@ export default function LandingPage() {
         {}
         <div className="pt-2 w-full flex flex-col items-center gap-4 max-w-md">
           <button
-            /*onClick={() => signIn('google', { callbackUrl: '/interview' })}*/
-			onClick={() => handleGoogleLogin()}
+            onClick={() => signIn('google', { callbackUrl: '/interview' })}
             className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-white via-slate-100 to-slate-200 hover:from-slate-100 hover:to-white text-slate-950 font-bold px-8 py-4 rounded-2xl transition-all duration-200 shadow-2xl hover:shadow-indigo-500/20 text-base md:text-lg group border border-white/40 transform hover:-translate-y-0.5"
           >
             <svg className="w-5 h-5 transition-transform group-hover:scale-110" viewBox="0 0 24 24">
