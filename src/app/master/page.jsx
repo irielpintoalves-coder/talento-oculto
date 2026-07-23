@@ -66,13 +66,17 @@ export default function MasterDashboard() {
 
     setCreatingOrg(true);
 
-    // Cria a Empresa
+    // Obtém o usuário logado (Master) para preencher o owner_id
+    const { data: { user } } = await supabase.auth.getUser();
+
+    // 1. Cria a Empresa passando o owner_id do Master que está cadastrando
     const { data: newOrg, error: orgError } = await supabase
       .from('organizations')
       .insert({
         name: orgName,
         admin_email: cleanAdminEmail,
-        total_licenses: Number(totalLicenses)
+        total_licenses: Number(totalLicenses),
+        owner_id: user?.id || null // Preenche o owner_id para evitar o erro de NOT NULL
       })
       .select()
       .single();
@@ -83,7 +87,7 @@ export default function MasterDashboard() {
       return;
     }
 
-    // Cria/Atualiza o perfil do Admin automaticamente
+    // 2. Cria ou atualiza o perfil do Admin automaticamente
     const { data: existingProfile } = await supabase
       .from('profiles')
       .select('email')
