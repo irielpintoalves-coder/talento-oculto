@@ -247,34 +247,66 @@ export default function ResultDashboard({ data, onRestart }) {
 
         {/* ABA: OPORTUNIDADES & CARREIRA */}
         {activeTab === 'careers' && (
-          <div className="background: '#1a1a1a' border borderBottom: '1px solid #2d5f4f' rounded-2xl p-6 md:p-8 shadow-xl space-y-6 animate-fadeIn">
-            <h2 className="text-xl font-bold style={{ color: '#daa520' }} flex items-center gap-2 border-b borderBottom: '1px solid #2d5f4f' pb-4">
-              <span>🎯</span> Transições e Cargos Recomendados
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-              {data.career_suggestions?.map((career, idx) => (
-                <div
-                  key={idx}
-                  className="bg-slate-950/60 border borderBottom: '1px solid #2d5f4f' p-5 rounded-xl hover:border-amber-500/50 transition group"
-                >
-                  <div className="style={{ color: '#daa520' }} text-lg mb-2 font-bold group-hover:translate-x-1 transition-transform">
-                    {idx + 1}. {career}
-                  </div>
-                  <p className="text-xs style={{ color: '#888' }}">
-                    Sugerido com base na combinação de ferramentas, capacidade de solução de gargalos e experiência prática.
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+  <div
+    className="rounded-2xl p-6 md:p-8 shadow-xl space-y-6 animate-fadeIn"
+    style={cardStyle}
+  >
+    <h2
+      className="text-xl font-bold flex items-center gap-2 pb-4"
+      style={{
+        color: '#daa520',
+        borderBottom: '1px solid #2d5f4f',
+      }}
+    >
+      <span>🎯</span> Transições e Cargos Recomendados
+    </h2>
 
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+      {data.career_suggestions?.map((career, idx) => (
+        <div
+          key={idx}
+          className="p-5 rounded-xl transition group"
+          style={{
+            background: '#0f0f0f',
+            border: '1px solid #2d5f4f',
+          }}
+        >
+          <div
+            className="text-lg mb-2 font-bold group-hover:translate-x-1 transition-transform"
+            style={{ color: '#daa520' }}
+          >
+            {idx + 1}. {career}
+          </div>
+
+          <p
+            className="text-xs"
+            style={{ color: '#888' }}
+          >
+            Sugerido com base na combinação de ferramentas,
+            capacidade de solução de gargalos e experiência prática.
+          </p>
+        </div>
+      ))}
+    </div>
+  </div>
+)}
         {/* ABA: MODELOS DE CURRÍCULO */}
         {activeTab === 'cv' && (
-          <div className="background: '#1a1a1a' border borderBottom: '1px solid #2d5f4f' rounded-2xl p-6 md:p-8 shadow-xl space-y-6 animate-fadeIn">
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b borderBottom: '1px solid #2d5f4f' pb-4">
+          <div
+  className="rounded-2xl p-6 md:p-8 shadow-xl space-y-6 animate-fadeIn"
+  style={cardStyle}
+>
+            <div
+  className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-4"
+  style={{
+    borderBottom: '1px solid #2d5f4f',
+  }}
+>
               <div>
-                <h2 className="text-xl font-bold style={{ color: '#daa520' }} flex items-center gap-2">
+                <h2
+  className="text-xl font-bold flex items-center gap-2"
+  style={{ color: '#daa520' }}
+>
                   <span>📄</span> Modelos de Currículo Prontos
                 </h2>
                 <p
@@ -287,14 +319,12 @@ export default function ResultDashboard({ data, onRestart }) {
 
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() =>
-                    handleCopy(data.cv_options[selectedCvIndex]?.content, `cv-${selectedCvIndex}`)
-                  }
-                  className="style={{
-  background: '#d4844f',
-  color: '#0f0f0f'
-}} hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-xs font-semibold transition shadow-md shadow-indigo-600/30 flex items-center gap-2"
-                >
+  onClick={() =>
+    handleCopy(data.cv_options[selectedCvIndex]?.content, `cv-${selectedCvIndex}`)
+  }
+  className="px-4 py-2 rounded-lg text-xs font-semibold transition flex items-center gap-2"
+  style={primaryButtonStyle}
+>
                   {copiedIndex === `cv-${selectedCvIndex}` ? '✅ Copiado!' : '📋 Copiar Currículo Completo'}
                 </button>
               </div>
@@ -304,40 +334,43 @@ export default function ResultDashboard({ data, onRestart }) {
             <div className="flex flex-wrap gap-2">
               {data.cv_options?.map((cv, idx) => (
                 <button
-                  key={idx}
-                  onClick={() => setSelectedCvIndex(idx)}
-                  className={`px-4 py-2 rounded-xl text-xs font-semibold transition ${
-                    selectedCvIndex === idx
-                      ? 'style={{
-  background: '#d4844f',
-  color: '#0f0f0f'
-}} text-white border border-indigo-500'
-                      : 'style={{
-  background: '#2d5f4f',
-  color: '#daa520',
-  border: '1px solid #3a7d66'
-}} text-slate-300 border border-slate-700 hover:bg-slate-700'
-                  }`}
-                >
-                  {cv.title}
-                </button>
+  key={idx}
+  onClick={() => setSelectedCvIndex(idx)}
+  className="px-4 py-2 rounded-xl text-xs font-semibold transition"
+  style={
+    selectedCvIndex === idx
+      ? {
+          background: '#d4844f',
+          color: '#0f0f0f',
+          border: '1px solid #d4844f',
+        }
+      : {
+          background: '#2d5f4f',
+          color: '#daa520',
+          border: '1px solid #3a7d66',
+        }
+  }
+>
+  {cv.title}
+</button>
               ))}
             </div>
 
             {/* Exibição do Currículo Formatado */}
 <div
-  className="rounded-xl shadow-xl"
+  className="rounded-xl shadow-xl whitespace-pre-wrap"
   style={{
     background: '#ffffff',
     color: '#111111',
     padding: '40px',
     fontFamily: 'Arial',
     maxWidth: '850px',
-    margin: '0 auto'
+    margin: '0 auto',
+    lineHeight: '1.6',
   }}
 >
-              {data.cv_options[selectedCvIndex]?.content}
-            </div>
+  {data.cv_options[selectedCvIndex]?.content}
+</div>
           </div>
         )}
       </main>
