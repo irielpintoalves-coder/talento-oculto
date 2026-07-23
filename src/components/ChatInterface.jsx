@@ -246,59 +246,71 @@ export default function ChatInterface() {
       )}
 
       {/* Barra Superior */}
-      <header className="flex flex-col sm:flex-row items-center justify-between px-6 py-4 shadow-md gap-3" style={{ background: '#1a1a1a', borderBottom: '1px solid #2d5f4f' }}>
-        <div className="flex items-center space-x-3">
-          <Link href="/" className="flex items-center space-x-3 group">
-            <img 
-              src="/favicon.png" 
-              alt="Talento Oculto" 
-              className="w-10 h-10 logo-glow-pulse"
-            />
-            <h1 className="font-bold text-base md:text-lg" style={{ color: '#daa520' }}>
-              Talento Oculto <span className="text-xs font-normal text-gray-400">— Entrevistador Camaleão</span>
-            </h1>
-          </Link>
-        </div>
+<header className="flex flex-col sm:flex-row items-center justify-between px-6 py-4 shadow-md gap-3" style={{ background: '#1a1a1a', borderBottom: '1px solid #2d5f4f' }}>
+  <div className="flex items-center space-x-3">
+    <Link href="/" className="flex items-center space-x-3 group">
+      <img 
+        src="/favicon.png" 
+        alt="Talento Oculto" 
+        className="w-10 h-10 logo-glow-pulse"
+      />
+      <h1 className="font-bold text-base md:text-lg" style={{ color: '#daa520' }}>
+        Talento Oculto <span className="text-xs font-normal text-gray-400">— Entrevistador Camaleão</span>
+      </h1>
+    </Link>
+  </div>
 
-        <div className="flex items-center flex-wrap gap-2 text-xs">
-          <Link
-            href="/"
-            className="px-3 py-1.5 rounded-lg font-medium transition hover:bg-[#252525]"
-            style={{ color: '#e8dcc8' }}
-          >
-            🏠 Início
-          </Link>
+  <div className="flex items-center flex-wrap gap-2 text-xs">
+    {/* Link para Home */}
+    <Link
+      href="/"
+      className="px-3 py-1.5 rounded-lg font-medium transition hover:bg-[#252525]"
+      style={{ color: '#e8dcc8' }}
+    >
+      🏠 Início
+    </Link>
 
-          {/* Contador de Tentativas do Usuário */}
-          <div className="px-3 py-1.5 rounded-full font-medium" style={{ background: '#2d5f4f', color: '#daa520', border: '1px solid #3a7d66' }}>
-            Tentativas: {attempts}/3
-          </div>
+    {/* 🛡️ Botão do Painel - Exibido apenas para Admin ou Master */}
+    {(profile?.role === 'admin' || profile?.role === 'master') && (
+      <Link
+        href="/admin" // Ajuste para a rota do seu painel (/admin, /dashboard, etc.)
+        className="px-3 py-1.5 rounded-lg font-semibold transition border hover:bg-[#252525] flex items-center gap-1"
+        style={{ borderColor: '#2d5f4f', color: '#daa520' }}
+      >
+        🛡️ Painel de Gestão
+      </Link>
+    )}
 
-          {/* Contador de Interações */}
-          <div className="px-3 py-1.5 rounded-full font-medium bg-[#1a1a1a] border border-[#2d5f4f] text-gray-300">
-            Interações: {questionCount}
-          </div>
+    {/* Contador de Tentativas do Usuário */}
+    <div className="px-3 py-1.5 rounded-full font-medium" style={{ background: '#2d5f4f', color: '#daa520', border: '1px solid #3a7d66' }}>
+      Tentativas: {attempts}/3
+    </div>
 
-          {/* Botão de Concluir Relatório */}
-          <button
-            onClick={handleGenerateReport}
-            disabled={generatingReport || attempts >= 3}
-            className={`px-4 py-1.5 rounded-full font-semibold transition shadow-md text-white ${
-              isFinishedByAI || questionCount >= 5 ? 'animate-bounce' : ''
-            }`}
-            style={{ background: isFinishedByAI || questionCount >= 5 ? '#d4844f' : '#2d5f4f' }}
-          >
-            {isFinishedByAI ? '🎉 Ver Relatório' : '📊 Gerar Relatório'}
-          </button>
+    {/* Contador de Interações */}
+    <div className="px-3 py-1.5 rounded-full font-medium bg-[#1a1a1a] border border-[#2d5f4f] text-gray-300">
+      Interações: {questionCount}
+    </div>
 
-          <button
-            onClick={handleLogout}
-            className="px-3 py-1.5 rounded-lg font-semibold transition bg-red-950/40 text-red-400 border border-red-900 hover:bg-red-900/60"
-          >
-            Sair
-          </button>
-        </div>
-      </header>
+    {/* Botão de Concluir Relatório */}
+    <button
+      onClick={handleGenerateReport}
+      disabled={generatingReport || attempts >= 3}
+      className={`px-4 py-1.5 rounded-full font-semibold transition shadow-md text-white ${
+        isFinishedByAI || questionCount >= 5 ? 'animate-bounce' : ''
+      }`}
+      style={{ background: isFinishedByAI || questionCount >= 5 ? '#d4844f' : '#2d5f4f' }}
+    >
+      {isFinishedByAI ? '🎉 Ver Relatório' : '📊 Gerar Relatório'}
+    </button>
+
+    <button
+      onClick={handleLogout}
+      className="px-3 py-1.5 rounded-lg font-semibold transition bg-red-950/40 text-red-400 border border-red-900 hover:bg-red-900/60"
+    >
+      Sair
+    </button>
+  </div>
+</header>
 
       {/* Banner de Aviso */}
       {isFinishedByAI && (
