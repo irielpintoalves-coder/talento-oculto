@@ -41,7 +41,7 @@ export default function ResultDashboard({ data, onRestart }) {
         color: '#e8dcc8',
       }}
     >
->
+
       {/* Cabeçalho do Painel */}
       <header
   className="sticky top-0 z-20 shadow-xl"
@@ -84,21 +84,7 @@ export default function ResultDashboard({ data, onRestart }) {
 >
               🖨️ Imprimir / Salvar PDF
             </button>
-			const cardStyle = {
-  background: '#1a1a1a',
-  border: '1px solid #2d5f4f',
-};
 
-const primaryButtonStyle = {
-  background: '#d4844f',
-  color: '#0f0f0f',
-};
-
-const secondaryButtonStyle = {
-  background: '#2d5f4f',
-  color: '#daa520',
-  border: '1px solid #3a7d66',
-};
             <button
   onClick={onRestart}
   className="text-xs px-4 py-2 rounded-lg font-semibold transition shadow-md"
