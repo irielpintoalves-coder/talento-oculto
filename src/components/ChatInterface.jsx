@@ -13,11 +13,13 @@ export default function ChatInterface() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   );
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.push('/');
-    router.refresh();
-  };
+  // Estados do Usuário e Banco
+  const [currentUser, setCurrentUser] = useState(null);
+  const [profile, setProfile] = useState(null);
+  const [attempts, setAttempts] = useState(0);
+  const [loadingProfile, setLoadingProfile] = useState(true);
+
+  // Estados do Chat e Relatório
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
@@ -34,6 +36,40 @@ export default function ChatInterface() {
 
   const messagesEndRef = useRef(null);
 
+  // 1. Carrega o Perfil, Licença e Entrevista Salva ao Iniciar
+  useEffect(() => {
+    const loadUserProfile = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (!user) {
+        router.push('/login');
+        return;
+      }
+
+      setCurrentUser(user);
+
+      const { data: userProfile } = await supabase
+        .from('profiles')
+        .select('*')
+        .ilike('email', user.email)
+        .maybeSingle();
+
+      if (userProfile) {
+        setProfile(userProfile);
+        setAttempts(userProfile.interview_attempts || 0);
+
+        // Se já tiver uma entrevista salva no Supabase, abre direto o Dossiê
+        if (userProfile.saved_interview) {
+          setReportData(userProfile.saved_interview);
+        }
+      }
+
+      setLoadingProfile(false);
+    };
+
+    loadUserProfile();
+  }, []);
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -41,6 +77,12 @@ export default function ChatInterface() {
   useEffect(() => {
     scrollToBottom();
   }, [messages, loading]);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push('/');
+    router.refresh();
+  };
 
   const handleSubmit = async (e, textToSend) => {
     if (e) e.preventDefault();
@@ -88,7 +130,13 @@ export default function ChatInterface() {
     }
   };
 
+  // 2. Geração do Dossiê + Salvamento no Supabase
   const handleGenerateReport = async () => {
+    if (attempts >= 3) {
+      alert('Você atingiu o limite de 3 entrevistas para esta licença. Entre em contato com seu gestor.');
+      return;
+    }
+
     setGeneratingReport(true);
 
     try {
@@ -101,7 +149,22 @@ export default function ChatInterface() {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        setReportData(data.data);
+        const newReport = data.data;
+        const newAttempts = attempts + 1;
+
+        // Salva o relatório e incrementa as tentativas no perfil do usuário no Supabase
+        if (currentUser) {
+          await supabase
+            .from('profiles')
+            .update({
+              saved_interview: newReport,
+              interview_attempts: newAttempts,
+            })
+            .ilike('email', currentUser.email);
+        }
+
+        setAttempts(newAttempts);
+        setReportData(newReport);
       } else {
         alert(data.error || 'Ocorreu um erro ao gerar o relatório. Tente novamente.');
       }
@@ -113,10 +176,62 @@ export default function ChatInterface() {
     }
   };
 
-  if (reportData) {
-    return <ResultDashboard data={reportData} onRestart={() => window.location.reload()} />;
+  // 3. Ação para Refazer a Entrevista
+  const handleRestartInterview = () => {
+    if (attempts >= 3) {
+      alert('Você atingiu o limite de 3 entrevistas. Para refazer novamente, solicite o reset de tentativas ao seu gestor/administrador.');
+      return;
+    }
+
+    // Limpa os dados na tela para iniciar um novo chat
+    setReportData(null);
+    setIsFinishedByAI(false);
+    setQuestionCount(0);
+    setMessages([
+      {
+        role: 'assistant',
+        content:
+          'Olá! Sou o seu Entrevistador Camaleão. Para começarmos um mapeamento profundo de toda a sua trajetória profissional, me conte qual é ou qual foi o seu cargo e atividade principal mais recente.',
+      },
+    ]);
+  };
+
+  // 🔴 TELA 1: Carregamento Inicial
+  if (loadingProfile) {
+    return (
+      <div className="min-h-screen bg-[#0f0f0f] flex items-center justify-center text-[#daa520] font-mono text-sm">
+        Verificando credenciais e licença...
+      </div>
+    );
   }
 
+  // 🔴 TELA 2: Licença Inativa
+  if (profile?.is_active === false) {
+    return (
+      <div className="min-h-screen bg-[#0f0f0f] flex items-center justify-center p-4">
+        <div className="bg-[#1a1a1a] border border-red-900/60 rounded-2xl p-8 max-w-md w-full text-center space-y-4 shadow-2xl">
+          <div className="text-4xl">🔒</div>
+          <h2 className="text-lg font-bold text-red-400">Licença Inativa</h2>
+          <p className="text-xs text-gray-300 leading-relaxed">
+            Sua conta no sistema foi pausada ou inativada pelo gestor da sua empresa. Entre em contato com o responsável para liberação.
+          </p>
+          <button
+            onClick={handleLogout}
+            className="w-full py-2.5 bg-red-950/60 text-red-300 border border-red-800 rounded-xl text-xs font-bold hover:bg-red-900 transition"
+          >
+            Sair da Conta
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // 🟢 TELA 3: Dossiê Salvo / Gerado (Dashboard de Resultados)
+  if (reportData) {
+    return <ResultDashboard data={reportData} onRestart={handleRestartInterview} attempts={attempts} />;
+  }
+
+  // 🟢 TELA 4: Interface do Chat de Entrevista
   return (
     <div className="flex flex-col h-screen relative" style={{ background: '#0f0f0f', color: '#e8dcc8' }}>
       {/* Overlay de Carregamento */}
@@ -146,7 +261,6 @@ export default function ChatInterface() {
         </div>
 
         <div className="flex items-center flex-wrap gap-2 text-xs">
-          {/* Link para Home */}
           <Link
             href="/"
             className="px-3 py-1.5 rounded-lg font-medium transition hover:bg-[#252525]"
@@ -155,24 +269,20 @@ export default function ChatInterface() {
             🏠 Início
           </Link>
 
-          {/* Link para Acesso/Login */}
-          <Link
-            href="/login"
-            className="px-3 py-1.5 rounded-lg font-semibold transition border hover:bg-[#252525]"
-            style={{ borderColor: '#2d5f4f', color: '#daa520' }}
-          >
-            🔐 Gerenciar Logins
-          </Link>
+          {/* Contador de Tentativas do Usuário */}
+          <div className="px-3 py-1.5 rounded-full font-medium" style={{ background: '#2d5f4f', color: '#daa520', border: '1px solid #3a7d66' }}>
+            Tentativas: {attempts}/3
+          </div>
 
           {/* Contador de Interações */}
-          <div className="px-3 py-1.5 rounded-full font-medium" style={{ background: '#2d5f4f', color: '#daa520', border: '1px solid #3a7d66' }}>
+          <div className="px-3 py-1.5 rounded-full font-medium bg-[#1a1a1a] border border-[#2d5f4f] text-gray-300">
             Interações: {questionCount}
           </div>
 
           {/* Botão de Concluir Relatório */}
           <button
             onClick={handleGenerateReport}
-            disabled={generatingReport}
+            disabled={generatingReport || attempts >= 3}
             className={`px-4 py-1.5 rounded-full font-semibold transition shadow-md text-white ${
               isFinishedByAI || questionCount >= 5 ? 'animate-bounce' : ''
             }`}
@@ -181,7 +291,6 @@ export default function ChatInterface() {
             {isFinishedByAI ? '🎉 Ver Relatório' : '📊 Gerar Relatório'}
           </button>
 
-          {/* Botão de Logout */}
           <button
             onClick={handleLogout}
             className="px-3 py-1.5 rounded-lg font-semibold transition bg-red-950/40 text-red-400 border border-red-900 hover:bg-red-900/60"
