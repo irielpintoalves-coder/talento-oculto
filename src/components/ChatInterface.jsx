@@ -122,7 +122,7 @@ export default function ChatInterface() {
           <img 
   src="/favicon.png" 
   alt="Talento Oculto" 
-  className="w-6 h-6 logo-glow-pulse"
+  className="w-12 h-12 logo-glow-pulse"
 />
           <h1 className="font-bold text-base md:text-lg" style={{ color: '#daa520' }}>Talento Oculto — Entrevistador Camaleão</h1>
         </div>
