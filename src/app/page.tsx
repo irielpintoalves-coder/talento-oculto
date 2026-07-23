@@ -53,7 +53,7 @@ export default function LandingPage() {
         <div className="space-y-6 max-w-4xl">
           <div className="inline-flex items-center gap-2 bg-slate-900/90 border border-indigo-500/30 text-indigo-300 px-4 py-2 rounded-full text-xs font-semibold tracking-wide shadow-inner glow-indigo">
             <span className="text-sm">✨</span> <span suppressHydrationWarning>
-  {" Powered by Gemini 2.0 Flash AI & Motor Multi-Provedor"}
+  {" Powered by Gemini Flash AI & Motor Multi-Provedor"}
 </span>
           </div>
 

@@ -37,9 +37,9 @@ export const authOptions = {
 
         // Consulta a tabela 'users' no Supabase
 const { data, error } = await supabase
-  .from("allowed_emails")  // ✅ CORRETO!
-  .select("email")
-  .ilike("email", user.email)
+  .from("users")  // ← DE VOLTA AO ORIGINAL
+  .select("is_active")
+  .eq("email", user.email)
   .maybeSingle();
 
         if (error) {

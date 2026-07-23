@@ -50,14 +50,14 @@ export async function GET(request) {
       return NextResponse.redirect(`${origin}/login?error=user_not_found`);
     }
 
-    // Validação da Whitelist consultando a tabela 'allowed_emails' (ignorando maiúsculas/minúsculas)
-    const { data: allowedUser, error: dbError } = await supabase
-      .from('allowed_emails')
-      .select('email')
-      .ilike('email', user.email)
-      .maybeSingle();
+    // Validação da Whitelist consultando a tabela 'users' (ignorando maiúsculas/minúsculas)
+const { data: allowedUser } = await supabase
+  .from('users')
+  .select('email, active')
+  .eq('email', user.email)
+  .maybeSingle();
 
-    if (dbError || !allowedUser) {
+    if (dbError || !allowedUser || !allowedUser.active) {
       // Encerra a sessão imediatamente se o e-mail não estiver na tabela
       await supabase.auth.signOut();
       return NextResponse.redirect(`${origin}/login?error=unauthorized`);
